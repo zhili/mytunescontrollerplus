@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'MyTunesController' target in the 'MyTunesController' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
