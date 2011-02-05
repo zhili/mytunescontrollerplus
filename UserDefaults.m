@@ -28,4 +28,4 @@
 #import "UserDefaults.h"
 
 NSString *CONotificationCorner = @"NotificationCorner";
-
+NSString *COSogouLRCEngine = @"SogouLRCEngine";

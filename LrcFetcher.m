@@ -30,7 +30,7 @@
 @synthesize lrcDirPath = _lrcDirPath;
 @synthesize runningOperationCount = _runningOperationCount;
 @synthesize delegate = _delegate;
-
+@synthesize useSogouEngine = _useSogouEngine;
 
 - (id)initWithArtist:(NSString*)artist
 			   Title:(NSString*)title
@@ -89,9 +89,17 @@
 {
 	NSString *query;
 	NSURL *url;
-	query = [NSString stringWithFormat:LRC123, 
-			 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
-			 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
+	if (self.useSogouEngine) {
+		query = [NSString stringWithFormat:SOGOU_QUERY_AT_TEMPLATE, 
+				 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
+				 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
+		NSLog(@"using sogou.");
+	} else {
+		query = [NSString stringWithFormat:LRC123, 
+				 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
+				 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
+	}
+
 	url = [NSURL URLWithString:query];
 	assert(url != nil);
     assert([[[url scheme] lowercaseString] isEqual:@"http"] || [[[url scheme] lowercaseString] isEqual:@"https"]);
@@ -179,7 +187,9 @@
         assert(nextOp != nil);
         
         nextOp.useRelaxedParsing = YES;
-        
+        if (self.useSogouEngine) {
+			nextOp.useSogouEngine = YES;
+		}
         [self.queue addOperation:nextOp finishedAction:@selector(parseDone:)];
         [self operationDidStart];
         

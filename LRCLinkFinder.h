@@ -8,6 +8,7 @@
     NSMutableArray *    _mutableLrcURLs;
     NSError *           _error;
 	NSURL *_baseLrcURL;
+	BOOL _useSogouEngine;
 }
 
 - (id)initWithData:(NSData *)data fromURL:(NSURL *)url;
@@ -18,11 +19,11 @@
 
 @property (copy, readonly) NSData *data;
 @property (copy, readonly) NSURL *URL;
-@property (copy, readonly) NSURL *baseLrcURL;
+// @property (copy, readonly) NSURL *baseLrcURL;
 // Things you can configure before queuing the operation.
 
 @property (assign, readwrite) BOOL useRelaxedParsing;
-
+@property (assign, readwrite) BOOL useSogouEngine;
 // Things that are only really useful after the operation is finished.
 
 @property (copy, readonly) NSError *error;

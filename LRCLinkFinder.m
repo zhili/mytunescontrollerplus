@@ -37,7 +37,7 @@ enum {
 @synthesize error = _error;
 @synthesize mutableLrcURLs = _mutableLrcURLs;
 @synthesize useRelaxedParsing = _useRelaxedParsing;
-@synthesize baseLrcURL   = _baseLrcURL;
+@synthesize useSogouEngine = _useSogouEngine;
 
 - (id)initWithData:(NSData *)data fromURL:(NSURL *)url
 {
@@ -51,14 +51,14 @@ enum {
         assert(self->_URL != nil);
         self->_mutableLrcURLs = [[NSMutableArray alloc] init];
         assert(self->_mutableLrcURLs != nil);
-		self->_baseLrcURL = [[NSURL alloc] initWithString:LRC123_BASEURL];
+		//self->_baseLrcURL = [[NSURL alloc] initWithString:LRC123_BASEURL];
     }
     return self;
 }
 
 - (void)dealloc
 {
-	[self->_baseLrcURL release];
+	// [self->_baseLrcURL release];
     [self->_mutableLrcURLs release];
     [self->_error release];
     [self->_URL release];
@@ -92,8 +92,14 @@ enum {
         // Construct a relativel URL based on our base URL and the string. 
         // This can and does fail on real world systems (curse those users 
         // and their bogus HTML!).
-		
-        url = [NSURL URLWithString:str relativeToURL:self.baseLrcURL];
+		NSURL *baseLrcURL;
+		if (self.useSogouEngine) {
+			baseLrcURL = [NSURL URLWithString:SOGOU_BASEURL];
+		} else {
+			baseLrcURL = [NSURL URLWithString:LRC123_BASEURL];
+		}
+
+        url = [NSURL URLWithString:str relativeToURL:baseLrcURL];
         if (url == nil) {
             NSLog(@"Could not construct URL from '%@' relative to '%@'.", str, self.URL);
         } else {
@@ -128,10 +134,12 @@ static void StartElementSAXFunc(
         if ( strcmp( (const char *) name, "a") == 0 ) {
             attrIndex = 0;
             while (attrs[attrIndex] != NULL) {
-                if ( strcmp( (const char *) attrs[attrIndex], "href") == 0 
-					&& strncmp((const char*) attrs[attrIndex+1], LRC123_LRC_FOOTPRINT, 13) == 0
-					/*&& strncmp((const char*) attrs[attrIndex + 1], SOGOU_LRC_FOOTPRINT, 11) == 0*/) {
-                    [obj addURLForCString:(const char *) attrs[attrIndex + 1] toArray:obj.mutableLrcURLs];
+                if ( strcmp( (const char *) attrs[attrIndex], "href") == 0 ) {
+					
+					if ( strlen((const char*) attrs[attrIndex + 1]) >= 11 && strncmp((const char*) attrs[attrIndex + 1], SOGOU_LRC_FOOTPRINT, 11) == 0 ||
+						 strlen((const char*) attrs[attrIndex + 1]) >= 13 && strncmp((const char*) attrs[attrIndex+1], LRC123_LRC_FOOTPRINT, 13) == 0)
+						[obj addURLForCString:(const char *) attrs[attrIndex + 1] toArray:obj.mutableLrcURLs];
+				
                 }
                 attrIndex += 2;
             }

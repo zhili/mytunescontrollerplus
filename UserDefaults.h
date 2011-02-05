@@ -28,4 +28,4 @@
 #import <Foundation/Foundation.h>
 
 extern NSString *CONotificationCorner;
-
+extern NSString *COSogouLRCEngine;

@@ -51,7 +51,7 @@
 	NSTimer *lrcTimer;
 	LrcStorage *store;
 	LrcTokensPool *lrcPool;
-	BOOL m_isBackgroundThreadToTerminate;
+	BOOL useSogouLRCEngine;
 }
 
 @property (assign) IBOutlet NSWindow *window;

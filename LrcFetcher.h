@@ -16,6 +16,7 @@
 	NSString *_artist;
 	NSString *_title;
 	LrcStorage *_lrcStorage;
+	BOOL _useSogouEngine;
 }
 
 - (id)initWithArtist:(NSString*)artist
@@ -26,6 +27,7 @@
 @property (nonatomic, copy, readonly) NSString *title;
 
 // Things you can change before calling -start.
+@property (nonatomic, assign, readwrite) BOOL useSogouEngine;
 @property (nonatomic, copy, readwrite) NSString *lrcDirPath;      // defaults to the "images" directory within the temporary directory
 // don't change this after calling -startWithURLString:
 @property (nonatomic, assign, readwrite) id<lrcFetcherDelegate> delegate;

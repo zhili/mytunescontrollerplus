@@ -61,7 +61,8 @@ const NSTimeInterval kRefetchInterval = 0.5;
 + (void)initialize
 {
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-															 [NSNumber numberWithUnsignedInteger:3], CONotificationCorner,    
+															 [NSNumber numberWithUnsignedInteger:3], CONotificationCorner,
+															  NO, COSogouLRCEngine, 
 															 nil]];
 }
 
@@ -90,6 +91,10 @@ const NSTimeInterval kRefetchInterval = 0.5;
 															  forKeyPath:@"values.NotificationCorner"
 																 options:NSKeyValueObservingOptionInitial
 																 context:nil];
+	[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self
+															  forKeyPath:@"values.SogouLRCEngine"
+																 options:NSKeyValueObservingOptionInitial
+																 context:nil];
 	[[iTunesController sharedInstance] setDelegate:self];
 	[self _setupStatusItem];
 	[self _updateStatusItemButtons];
@@ -99,10 +104,12 @@ const NSTimeInterval kRefetchInterval = 0.5;
 {
 	if ([keyPath isEqualToString:@"values.NotificationCorner"]) {
 		positionCorner = [[[NSUserDefaults standardUserDefaults] objectForKey:CONotificationCorner] unsignedIntValue];
-		
 		if (notificationController)
 			[notificationController setPositionCorner:positionCorner];
-	} 
+	} else if ([keyPath isEqualToString:@"values.SogouLRCEngine"]) {
+		useSogouLRCEngine = [[NSUserDefaults standardUserDefaults] boolForKey:COSogouLRCEngine];
+	}
+
 	else 
 		[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 }
@@ -287,6 +294,9 @@ const NSTimeInterval kRefetchInterval = 0.5;
 												  Title:[track name]
 											 LRCStorage:store];
 	[fetcher setDelegate:self];
+	if (useSogouLRCEngine ) {
+		[fetcher setUseSogouEngine:YES];
+	}
 	[fetcher start];
 	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:10];
 
