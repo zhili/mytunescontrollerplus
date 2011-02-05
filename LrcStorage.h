@@ -10,11 +10,15 @@
 
 @interface LrcStorage : NSObject {
 	NSMutableDictionary *lrcFileStorage_;
+	NSString *lrcStorePath_;
+	NSString *lrcLibraryFilePath_;
 }
 
 - (id)init;
-- (BOOL)addNewLRCFile:(NSString*)fileName Content:(NSData*)lrcContent;
+- (BOOL)addLRCFile:(NSString*)fileName;
 - (NSString*)getLocalLRCFile:(NSString*)fileName;
 - (BOOL)deleteLRCFile:(NSString*)fileName;
+@property (nonatomic, readonly) NSString *lrcStorePath;
+@property (nonatomic, readonly) NSString *lrcLibraryFilePath;
 
 @end

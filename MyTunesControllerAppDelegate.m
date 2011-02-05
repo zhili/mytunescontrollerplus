@@ -4,7 +4,8 @@
 //
 //  Created by Toomas Vahter on 26.12.09.
 //  Copyright (c) 2010 Toomas Vahter
-//
+//   * Contributor(s):
+//          LRC support, zhili hu <huzhili@gmail.com>
 //  This content is released under the MIT License (http://www.opensource.org/licenses/mit-license.php).
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,7 +38,6 @@
 
 #import "ImageScaler.h"
 
-#import "LrcFetcher.h"
 
 const NSTimeInterval kRefetchInterval = 0.5;
 
@@ -45,7 +45,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 - (void)_setupStatusItem;
 - (void)_updateStatusItemButtons;
-- (void)setNewLyrics:(iTunesTrack *)track;
+- (void)setLyricsForTrack:(iTunesTrack *)track;
 - (void)startLRCTimer;
 - (void)stopLRCTimer;
 - (void)freeLRCPool;
@@ -109,13 +109,41 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 #pragma mark Delegates
 
+- (void)lrcPageLoadDidFinish:(NSError *)error
+{
+	if (error != nil) {
+		lyricsController.lyricsText = @"Network error or page not exit";// [NSString stringWithFormat:@"%@:%@", [error domain], [error userInfo]];
+	}
+}
+
+- (void)lrcPageParseDidFinish:(NSError *)error
+{
+	if (error != nil) {
+		lyricsController.lyricsText = @"No lyrics available";
+	}
+}
+
+- (void)lrcDownloadDidFinishWithArtist:(NSString *)artist Title:(NSString *)title
+{
+	iTunesTrack *track = [[iTunesController sharedInstance] currentTrack]; // playing track
+	if ([title isEqualToString:[track name]] && [artist isEqualToString:[track artist]]) {
+		// compose the lrc file key.
+		NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", artist, title];
+		lyricsController.lyricsText = @"Download success.";
+		[self resetLRCPoll:[store getLocalLRCFile:lrcFileName]];
+		// start the timer from main thread
+		[self performSelectorOnMainThread:@selector(startLRCTimer) withObject:nil waitUntilDone:NO];
+		NSLog(@"Starting lyrics:..");
+	}
+}
+
 - (void)iTunesTrackDidChange:(iTunesTrack *)newTrack
 {
 	[self _updateStatusItemButtons];
 	
 	if (lyricsController) {
 		lyricsController.track = newTrack;
-		[self setNewLyrics:newTrack];
+		[self setLyricsForTrack:newTrack];
 	}
 	
 	if (newTrack == nil) 
@@ -158,6 +186,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		if (lrcTimer) {
 			[lrcTimer invalidate];
 			[lrcTimer release];
+			lrcTimer = nil;
 		}
 	}
 	else if ([w isEqualTo:preferencesController.window]) {
@@ -176,6 +205,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 - (IBAction)playPause:(id)sender 
 {
 	[[iTunesController sharedInstance] playPause];
+
 }
 
 - (IBAction)playNext:(id)sender 
@@ -191,43 +221,35 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[NSApp activateIgnoringOtherApps:YES];
 }
 
-- (void)setNewLyrics:(iTunesTrack *)track
+// set the lyrics for a new track.
+// try find them from local storage.
+// if not exit, go download them by spide a new thread,
+// then retain, for the purpose of
+// non-blocking the windows notification.
+
+- (void)setLyricsForTrack:(iTunesTrack *)track
 {
-	NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@.lrc", [track artist], [track name]];
+	NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", [track artist], [track name]];
 	NSString *desired_lrc;
-	desired_lrc = [store getLocalLRCFile:lrcFileName];
-	
-	if ([desired_lrc length] <= 0) {
-		NSLog(@"there no lrc, try download it from sogou");
-		LrcFetcher *fet = [[LrcFetcher alloc] initWithArtist:[track artist] Title:[track name] LRCStorage:store];
-		
-		if ([fet startQuery] &&
-			[fet startDownloadIt]) {
-			NSLog(@"download successfully");
-			desired_lrc = [store getLocalLRCFile:lrcFileName];
-		} else {
-			NSLog(@"failed to download.");
-		}
-
-		[fet release];
-
-	}
+	assert(store != nil);
 	if (lrcTimer) {
 		[self stopLRCTimer];
 		//[self cancelLoad];
 	}
-	
-	if ([desired_lrc length] > 0) {
+	desired_lrc = [store getLocalLRCFile:lrcFileName];
+	if ([desired_lrc length] <= 0) {
+		lyricsController.lyricsText = @"Try to download lyrics";
+		NSThread* timerThread = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; //Create a new thread
+		[timerThread start]; //start the thread
 
+	} else {
 		[self resetLRCPoll:desired_lrc];
 		[self startLRCTimer];
-		NSLog(@"Starting lyrics:..");
-		
-	} else {
-		lyricsController.lyricsText = @"No lyrics available";
+		NSLog(@"Starting lyrics:..");	
 	}
 
 }
+
 
 - (void)freeLRCPool
 {
@@ -248,9 +270,34 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 // Create and start the timer that triggers a refetch every few seconds
 - (void)startLRCTimer {
-    [self stopLRCTimer];
-    lrcTimer = [NSTimer scheduledTimerWithTimeInterval:kRefetchInterval target:self selector:@selector(lrcRoller:) userInfo:nil repeats:YES];
-    [lrcTimer retain];
+
+	[self stopLRCTimer];
+	lrcTimer = [NSTimer scheduledTimerWithTimeInterval:kRefetchInterval target:self selector:@selector(lrcRoller:) userInfo:nil repeats:YES];
+	[lrcTimer retain];
+}
+
+//the thread starts by sending this message
+-(void)startLRCDonwloadThread:(iTunesTrack*)track
+{
+	NSAutoreleasePool* thePool = [[NSAutoreleasePool alloc] init];
+	// create a new lrc fetcher, which do page download, parsing and
+	// download the actual lrc.
+	// there are two usefull delegates, one parse finish, the other donwload finish.
+	lrcFetcher *fetcher = [lrcFetcher fetcherWithArtist:[track artist]
+												  Title:[track name]
+											 LRCStorage:store];
+	[fetcher setDelegate:self];
+	[fetcher start];
+	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:10];
+
+	// try to make this none-blocking?.....
+	//NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];
+
+	do {
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+	} while (!fetcher.done && [giveUpDate timeIntervalSinceNow] > 0);
+
+	[thePool release];
 }
 
 // Stop the timer; prevent future loads until startTimer is called again
@@ -276,12 +323,14 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 	iTunesTrack *track = [[iTunesController sharedInstance] currentTrack]; // playing track
 	
-	if (track != nil ) // this could be nil when itunes is not running.
-		[self setNewLyrics:track];
 
-	
 	lyricsController.track = track;
 	[lyricsController showWindow:self];
+	
+	if (track != nil ) // this could be nil when itunes is not running.
+		[self setLyricsForTrack:track];
+	
+	
 	[NSApp activateIgnoringOtherApps:YES];
 }
 

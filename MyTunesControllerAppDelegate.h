@@ -30,9 +30,11 @@
 
 #import "LrcStorage.h"
 #import "LrcTokensPool.h"
+#import "LRCFetcher.h"
+
 @class LyricsWindowController, NotificationWindowController, PreferencesController, StatusView;
 
-@interface MyTunesControllerAppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate> 
+@interface MyTunesControllerAppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate, lrcFetcherDelegate> 
 {
 	IBOutlet id sparkle;
 	IBOutlet NSButton *playButton;
@@ -49,6 +51,7 @@
 	NSTimer *lrcTimer;
 	LrcStorage *store;
 	LrcTokensPool *lrcPool;
+	BOOL m_isBackgroundThreadToTerminate;
 }
 
 @property (assign) IBOutlet NSWindow *window;

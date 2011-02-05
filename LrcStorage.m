@@ -8,29 +8,34 @@
 
 #import "LrcStorage.h"
 
-#define DEFAUTL_LRC_LIB @"~/Library/Application Support/MyTunesControllerPlus/lrcLibrary.plist"
-#define DEFAUTL_LRC_PATH @"~/Library/Application Support/MyTunesControllerPlus/%@"
-
 @interface LrcStorage ()
 - (BOOL)saveLrcLibraryToDisk;
 @end
 
 @implementation LrcStorage
 
+@synthesize lrcStorePath = lrcStorePath_;
+@synthesize lrcLibraryFilePath = lrcLibraryFilePath_;
 
 -(id)init
 {
 	if (self = [super init]) {
+		
+		lrcStorePath_ = [[@"~/Library/Application Support/MyTunesControllerPlus/" stringByExpandingTildeInPath] copy];
+
+		lrcLibraryFilePath_ = [[@"~/Library/Application Support/MyTunesControllerPlus/lrcParser.plist" stringByExpandingTildeInPath] copy];
+		
 		NSFileManager *fileManager = [NSFileManager defaultManager];
-		if ([fileManager fileExistsAtPath: [DEFAUTL_LRC_LIB stringByExpandingTildeInPath]] == NO) {
+		if ([fileManager fileExistsAtPath:lrcStorePath_] == NO) {
+			[fileManager createDirectoryAtPath:lrcStorePath_ withIntermediateDirectories:YES attributes:nil error:NULL];
+						
+		} 
+		if ([fileManager fileExistsAtPath:lrcLibraryFilePath_] == 0) {
 			lrcFileStorage_ = [[NSMutableDictionary alloc] init];
-			NSString *filePath = [[NSString stringWithFormat:DEFAUTL_LRC_PATH, @""] stringByExpandingTildeInPath];
-			
-			[fileManager createDirectoryAtPath:filePath withIntermediateDirectories:YES attributes:nil error:NULL];
-			[self saveLrcLibraryToDisk];
+			[lrcFileStorage_ writeToFile:[lrcLibraryFilePath_ stringByExpandingTildeInPath] atomically: TRUE];
+
 		} else {
-			lrcFileStorage_ = [[NSDictionary alloc] initWithContentsOfFile: 
-							   [DEFAUTL_LRC_LIB stringByExpandingTildeInPath]];
+			lrcFileStorage_ = [[NSMutableDictionary alloc] initWithContentsOfFile:lrcLibraryFilePath_];
 		}
 	}
 	return self;
@@ -38,19 +43,15 @@
 
 - (BOOL)saveLrcLibraryToDisk
 {
-	return [lrcFileStorage_ writeToFile:[DEFAUTL_LRC_LIB stringByExpandingTildeInPath] atomically: TRUE];
+	return [lrcFileStorage_ writeToFile:[lrcLibraryFilePath_ stringByExpandingTildeInPath] atomically: TRUE];
 }
 
-- (BOOL)addNewLRCFile:(NSString*)fileName Content:(NSData*)lrcContent;
+- (BOOL)addLRCFile:(NSString*)fileName
 {
-
-	NSString *filePathAndName = [NSString stringWithFormat:DEFAUTL_LRC_PATH, fileName];
-	if ([lrcContent writeToFile:[filePathAndName stringByExpandingTildeInPath] atomically:NO]) {
-		[lrcFileStorage_ setObject:[filePathAndName stringByExpandingTildeInPath] forKey:fileName];
-		[self saveLrcLibraryToDisk];
-		return YES;
-	}
-	return NO;
+	NSString *extension = @"lrc";
+	NSString *filePathAndName = [lrcStorePath_ stringByAppendingPathComponent:[fileName stringByAppendingPathExtension:extension]];
+	[lrcFileStorage_ setObject:[filePathAndName stringByExpandingTildeInPath] forKey:fileName];
+	return [self saveLrcLibraryToDisk];
 }
 
 - (NSString*)getLocalLRCFile:(NSString*)fileName
@@ -69,6 +70,8 @@
 
 - (void)dealloc
 {
+	[lrcLibraryFilePath_ release];
+	[lrcStorePath_ release];
 	[lrcFileStorage_ release];
 	[super dealloc];
 }

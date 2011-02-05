@@ -116,12 +116,12 @@ NSStringEncoding detectedEncodingForData(NSData *data)
 - (BOOL)parseLyrics
 {
 	NSString *contents;
-
 	NSData *data = [[NSFileManager defaultManager] contentsAtPath:path_];
 	
 	contents = [[NSString alloc] initWithData: data
 									 encoding: detectedEncodingForData(data)];
 	
+
 	NSArray *lines = [contents componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
 	
 	NSEnumerator *enumerator=[lines objectEnumerator];
