@@ -1,6 +1,6 @@
 
 #import "LRCLinkFinder.h"
-
+#import "basictypes.h"
 #include <libxml/HTMLparser.h>
 
 #define SOGOU_LRC_FOOTPRINT "downlrc.jsp"
@@ -101,10 +101,10 @@ enum {
 
         url = [NSURL URLWithString:str relativeToURL:baseLrcURL];
         if (url == nil) {
-            NSLog(@"Could not construct URL from '%@' relative to '%@'.", str, self.URL);
+            DeLog(@"Could not construct URL from '%@' relative to '%@'.", str, self.URL);
         } else {
             [array addObject:url];
-			NSLog(@"new lrc download url: %@", url);
+			DeLog(@"new lrc download url: %@", url);
 		}
     }
 }

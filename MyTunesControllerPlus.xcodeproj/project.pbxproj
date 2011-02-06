@@ -161,6 +161,7 @@
 		D7B503B912F84C0A003112CD /* NSString+URLArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+URLArguments.h"; sourceTree = "<group>"; };
 		D7B503BA12F84C0A003112CD /* NSString+URLArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+URLArguments.m"; sourceTree = "<group>"; };
 		D7B503CD12F84C0A003112CD /* chardetect.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = chardetect.a; sourceTree = "<group>"; };
+		D7B53FD712FE8F25009C311B /* basictypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basictypes.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -346,6 +347,7 @@
 				C874064D1244D81F008F0DD4 /* LyricsWindowController.m */,
 				C8BF8F7B1284B9AD00BB5CAC /* RecessedScroller.h */,
 				C8BF8F7C1284B9AD00BB5CAC /* RecessedScroller.m */,
+				D7B53FD712FE8F25009C311B /* basictypes.h */,
 			);
 			name = Lyrics;
 			sourceTree = "<group>";
@@ -565,6 +567,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2/;
@@ -579,6 +582,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2/;

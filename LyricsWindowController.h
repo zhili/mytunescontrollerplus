@@ -39,5 +39,5 @@
 @property (nonatomic, readonly) NSColor *lyricsTextColor;
 @property (nonatomic, readonly) NSFont *lyricsFont;
 @property (nonatomic, readwrite, retain) iTunesTrack *track;
-@property (nonatomic, readwrite, copy) NSString *lyricsText;
+@property (readwrite, copy) NSString *lyricsText;
 @end

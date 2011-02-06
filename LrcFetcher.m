@@ -1,5 +1,5 @@
 #import "LRCFetcher.h"
-
+#import "basictypes.h"
 #import "LrcDownloadOperation.h"
 #import "PageGetOperation.h"
 #import "LRCLinkFinder.h"
@@ -93,7 +93,7 @@
 		query = [NSString stringWithFormat:SOGOU_QUERY_AT_TEMPLATE, 
 				 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
 				 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
-		NSLog(@"using sogou.");
+		DeLog(@"using sogou.");
 	} else {
 		query = [NSString stringWithFormat:LRC123, 
 				 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
@@ -175,12 +175,12 @@
 		if ([self.delegate respondsToSelector:@selector(lrcPageLoadDidFinish:)]) {
 			[self.delegate lrcPageLoadDidFinish:op.error];
 		} 
-		NSLog(@"Page not found:%@", op);
+		DeLog(@"Page not found:%@", op);
 		
     } else {
-		NSLog(@"get page successfully");
+		DeLog(@"get page successfully");
         QHTMLLinkFinder* nextOp;
-		NSLog(@"%@", [op.lastResponse URL]);
+		DeLog(@"%@", [op.lastResponse URL]);
         // Don't use op.URL here, but rather [op.lastResponse URL] so that relatives 
         // URLs work in the face of redirection.
         nextOp = [[[QHTMLLinkFinder alloc] initWithData:op.responseBody fromURL:[op.lastResponse URL]] autorelease];
@@ -209,7 +209,7 @@
 //    assert([NSThread isMainThread]);
 	
     /*if (op.error != nil) {
-			NSLog(@"parse error.%@", op.error);
+			DeLog(@"parse error.%@", op.error);
         // An error parsing the main page is fatal to the entire process; an error 
         [self stopWithError:op.error];
 		
@@ -221,17 +221,17 @@
         
         // Download all of the images in the page, but only if we haven't already 
         // downloaded that image.
-		NSLog(@"parsed links.");
+		DeLog(@"parsed links.");
         //for (thisURL in op.lrcURLs) {
 		if ([op.lrcURLs count] > 0) {
 			thisURL = [op.lrcURLs objectAtIndex:0];
             thisURLAbsolute = [thisURL absoluteURL];
             assert(thisURLAbsolute != nil);
-			NSLog(@"%@", thisURL);
+			DeLog(@"%@", thisURL);
             if ([self.foundImageURLToPathMap objectForKey:thisURLAbsolute] != nil) {
-				NSLog(@"duplicate");
+				DeLog(@"duplicate");
             } else {
-				NSLog(@"start new download op from:%@",thisURLAbsolute);
+				DeLog(@"start new download op from:%@",thisURLAbsolute);
                 LrcDownloadOperation *    downloadOperation;
                 
                 [self.foundImageURLToPathMap setObject:[NSNull null] forKey:thisURLAbsolute];
@@ -284,7 +284,7 @@
     } else {
        // [self.foundImageURLToPathMap setObject:op.lrcFilePath forKey:op.URL];
 		[_lrcStorage addLRCFile:[NSString stringWithFormat:@"%@-%@", _artist, _title]];
-		NSLog(@"download file: %@ ok", op.lrcFilePath);
+		DeLog(@"download file: %@ ok", op.lrcFilePath);
 		//[self lrcDownloadDidFinishWithArtist:_artist Title:_title];
 		if ([self.delegate respondsToSelector:@selector(lrcDownloadDidFinishWithArtist:Title:)]) {
 			[self.delegate lrcDownloadDidFinishWithArtist:_artist Title:_title];
@@ -301,7 +301,7 @@
 	lrcFetcher *result;
 	result = [[[self alloc] initWithArtist:artist Title:title LRCStorage:store] autorelease];
 	if (result != nil) {
-		NSLog(@"Fired a new fetcher");
+		DeLog(@"Fired a new fetcher");
 	}
 	
 	return result;

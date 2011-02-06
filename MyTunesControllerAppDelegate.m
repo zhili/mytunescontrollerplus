@@ -35,7 +35,7 @@
 #import "iTunesController.h"
 #import "StatusView.h"
 #import "UserDefaults.h"
-
+#import "basictypes.h"
 #import "ImageScaler.h"
 
 
@@ -140,7 +140,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		[self resetLRCPoll:[store getLocalLRCFile:lrcFileName]];
 		// start the timer from main thread
 		[self performSelectorOnMainThread:@selector(startLRCTimer) withObject:nil waitUntilDone:NO];
-		NSLog(@"Starting lyrics:..");
+		DeLog(@"Starting lyrics:..");
 	}
 }
 
@@ -245,14 +245,14 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	}
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
-		lyricsController.lyricsText = @"Try to download lyrics";
+		lyricsController.lyricsText = @"Trying to download lyrics";
 		NSThread* timerThread = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; //Create a new thread
 		[timerThread start]; //start the thread
 
 	} else {
 		[self resetLRCPoll:desired_lrc];
 		[self startLRCTimer];
-		NSLog(@"Starting lyrics:..");	
+		DeLog(@"Starting lyrics:..");	
 	}
 
 }
@@ -298,15 +298,20 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		[fetcher setUseSogouEngine:YES];
 	}
 	[fetcher start];
-//	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:10];
+	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:15];
 //
 //	// try to make this none-blocking?.....
-//	//NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];
+	NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];
 //
 	do {
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+		[[NSRunLoop currentRunLoop] runUntilDate:stopDate]; //NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
 	} while (!fetcher.done && [giveUpDate timeIntervalSinceNow] > 0);
-
+	
+	// end with timeout.
+	if ([giveUpDate timeIntervalSinceNow] < 0) {
+		lyricsController.lyricsText = @"Network Timeout:(";
+	}
+	
 	[thePool release];
 }
 
@@ -337,7 +342,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	lyricsController.track = track;
 	[lyricsController showWindow:self];
 	
-	if (track != nil ) // this could be nil when itunes is not running.
+	if (track != nil && [[iTunesController sharedInstance] isPlaying]) // this could be nil when itunes is not running.
 		[self setLyricsForTrack:track];
 	
 	
@@ -347,7 +352,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 - (void)lrcRoller:(NSTimer *)aTimer
 {
 	NSInteger currentPosition = [[iTunesController sharedInstance] playerPosition]; // player position
-	//NSLog(@"%@", [pl getLyricsByTime:currentPosition]);
+	//DeLog(@"%@", [pl getLyricsByTime:currentPosition]);
 	lyricsController.lyricsText = [NSString stringWithFormat:@"lyrics: %@", [lrcPool getLyricsByTime:currentPosition]];
 }
 

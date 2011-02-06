@@ -36,7 +36,7 @@
 - (id)init
 {
 	if ((self = [super initWithWindowNibName:@"LyricsWindow" owner:self])) {
-		lyricsText = @"No Lyrics";
+		self.lyricsText = @"No Lyrics";
 	}
 	
 	return self;
