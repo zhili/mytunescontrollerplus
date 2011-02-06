@@ -246,8 +246,16 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
 		lyricsController.lyricsText = @"Try to download lyrics";
-		NSThread* timerThread = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; //Create a new thread
-		[timerThread start]; //start the thread
+		//NSThread* timerThread = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; //Create a new thread
+		//[timerThread start]; //start the thread
+		lrcFetcher *fetcher = [lrcFetcher fetcherWithArtist:[track artist]
+													  Title:[track name]
+												 LRCStorage:store];
+		[fetcher setDelegate:self];
+		if (useSogouLRCEngine ) {
+			[fetcher setUseSogouEngine:YES];
+		}
+		[fetcher start];
 
 	} else {
 		[self resetLRCPoll:desired_lrc];
@@ -298,14 +306,14 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		[fetcher setUseSogouEngine:YES];
 	}
 	[fetcher start];
-	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:10];
-
-	// try to make this none-blocking?.....
-	//NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];
-
-	do {
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-	} while (!fetcher.done && [giveUpDate timeIntervalSinceNow] > 0);
+//	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:10];
+//
+//	// try to make this none-blocking?.....
+//	//NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];
+//
+//	do {
+//		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+//	} while (!fetcher.done && [giveUpDate timeIntervalSinceNow] > 0);
 
 	[thePool release];
 }
@@ -346,7 +354,6 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 - (void)lrcRoller:(NSTimer *)aTimer
 {
-	
 	NSInteger currentPosition = [[iTunesController sharedInstance] playerPosition]; // player position
 	//NSLog(@"%@", [pl getLyricsByTime:currentPosition]);
 	lyricsController.lyricsText = [NSString stringWithFormat:@"lyrics: %@", [lrcPool getLyricsByTime:currentPosition]];

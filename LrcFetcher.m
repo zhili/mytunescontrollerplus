@@ -6,7 +6,7 @@
 #import "NSString+URLArguments.h"
 #import "LrcStorage.h"
 
-#define SOGOU_QUERY_AT_TEMPLATE @"http://mp3.sogou.com/gecisearch.so?query=%@-%@"
+#define SOGOU_QUERY_AT_TEMPLATE @"http://mp3.sogou.com/gecisearch.so?query=%@+%@"
 #define BAIDU_QUERY_AT_TEMPLATE @"http://mp3.baidu.com/m?f=ms&tn=baidump3lyric&ct=150994944&lf=2&rn=10&word=%@&lm=-1"
 #define LRC123 @"http://www.lrc123.com/?keyword=%@+%@&field=all"
 
@@ -36,7 +36,7 @@
 			   Title:(NSString*)title
 		  LRCStorage:(LrcStorage*)store
 {
-	assert(title != nil);
+	assert(title != nil || artist != nil);
 
 	self = [super init];
 	if (self != nil) {
