@@ -43,6 +43,7 @@
 		C8D98D9C12032CD200356DC1 /* ImageScaler.m in Sources */ = {isa = PBXBuildFile; fileRef = C8D98D9B12032CD200356DC1 /* ImageScaler.m */; };
 		C8E933C41200BB0B00F4D6BD /* LayerTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = C8E933C31200BB0B00F4D6BD /* LayerTextField.m */; };
 		C8FE898011FF7D6100290DEC /* iTunesController.m in Sources */ = {isa = PBXBuildFile; fileRef = C8FE897F11FF7D6100290DEC /* iTunesController.m */; };
+		D723855612FEB39C00FD9018 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = D723855512FEB39C00FD9018 /* dsa_pub.pem */; };
 		D744A24F12FC28A90056608A /* LrcDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24012FC28A90056608A /* LrcDownloadOperation.m */; };
 		D744A25012FC28A90056608A /* LRCFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24212FC28A90056608A /* LRCFetcher.m */; };
 		D744A25112FC28A90056608A /* LRCLinkFinder.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24412FC28A90056608A /* LRCLinkFinder.m */; };
@@ -53,7 +54,6 @@
 		D744A25612FC28A90056608A /* QWatchedOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24E12FC28A90056608A /* QWatchedOperationQueue.m */; };
 		D744A26C12FC2A910056608A /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D744A26B12FC2A910056608A /* libxml2.dylib */; };
 		D76D451912EAD0CD007C733D /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D76D451812EAD0CD007C733D /* Sparkle.framework */; };
-		D76D452612EAD29D007C733D /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = D76D452512EAD29D007C733D /* dsa_pub.pem */; };
 		D7B503BE12F84C0A003112CD /* LrcToken.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B412F84C0A003112CD /* LrcToken.m */; };
 		D7B503BF12F84C0A003112CD /* LrcTokensPool.mm in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B612F84C0A003112CD /* LrcTokensPool.mm */; };
 		D7B503C012F84C0A003112CD /* NSScanner+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B812F84C0A003112CD /* NSScanner+JSON.m */; };
@@ -132,6 +132,7 @@
 		C8E933C31200BB0B00F4D6BD /* LayerTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LayerTextField.m; sourceTree = "<group>"; };
 		C8FE897E11FF7D6100290DEC /* iTunesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesController.h; sourceTree = "<group>"; };
 		C8FE897F11FF7D6100290DEC /* iTunesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iTunesController.m; sourceTree = "<group>"; };
+		D723855512FEB39C00FD9018 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 		D744A23F12FC28A90056608A /* LrcDownloadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcDownloadOperation.h; sourceTree = "<group>"; };
 		D744A24012FC28A90056608A /* LrcDownloadOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcDownloadOperation.m; sourceTree = "<group>"; };
 		D744A24112FC28A90056608A /* LRCFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LRCFetcher.h; sourceTree = "<group>"; };
@@ -150,7 +151,6 @@
 		D744A24E12FC28A90056608A /* QWatchedOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QWatchedOperationQueue.m; sourceTree = "<group>"; };
 		D744A26B12FC2A910056608A /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		D76D451812EAD0CD007C733D /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
-		D76D452512EAD29D007C733D /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = dsa_pub.pem; path = "../../Downloads/Sparkle 1.5b6/Extras/Signing Tools/dsa_pub.pem"; sourceTree = SOURCE_ROOT; };
 		D7B503AC12F84C0A003112CD /* chardetect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chardetect.h; sourceTree = "<group>"; };
 		D7B503B312F84C0A003112CD /* LrcToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcToken.h; sourceTree = "<group>"; };
 		D7B503B412F84C0A003112CD /* LrcToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcToken.m; sourceTree = "<group>"; };
@@ -263,7 +263,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				D76D452512EAD29D007C733D /* dsa_pub.pem */,
+				D723855512FEB39C00FD9018 /* dsa_pub.pem */,
 				C83BBB7810FBA08000595F2D /* COPYING.txt */,
 				C83E393C121450C300708ADE /* blank.png */,
 				C89FC95110F944970093B4A6 /* next.png */,
@@ -429,7 +429,7 @@
 				C83BBB7910FBA08000595F2D /* COPYING.txt in Resources */,
 				C83E393D121450C300708ADE /* blank.png in Resources */,
 				C87406481244D7D0008F0DD4 /* LyricsWindow.xib in Resources */,
-				D76D452612EAD29D007C733D /* dsa_pub.pem in Resources */,
+				D723855612FEB39C00FD9018 /* dsa_pub.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

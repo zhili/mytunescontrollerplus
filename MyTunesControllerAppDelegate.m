@@ -413,7 +413,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	
 	theItem = [mainMenu addItemWithTitle:@"Quit"
 								  action:@selector(_quitApp)
-						   keyEquivalent:@"Q"];
+						   keyEquivalent:@"q"];
 	[theItem setTarget:self];
 	
 	[controllerItem setMenu:mainMenu];
