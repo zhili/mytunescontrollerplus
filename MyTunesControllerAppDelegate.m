@@ -148,17 +148,29 @@ const NSTimeInterval kRefetchInterval = 0.5;
 {
 	[self _updateStatusItemButtons];
 	
-	if (lyricsController) {
-		lyricsController.track = newTrack;
-		[self setLyricsForTrack:newTrack];
-	}
 	
-	if (newTrack == nil) 
+	if (newTrack == nil) {
+		DeLog(@"nil track.");
+		// nil track either the itunes is quiting or something else happend.
+		// so we stop the timer and empty the lyrics.
+		[self stopLRCTimer];
+		// the lyrics windows may not yet opened.
+		if (lyricsController) {
+			lyricsController.lyricsText = @"";
+			lyricsController.track = nil;
+		}
 		return;
+	}
 	
 	if ([[iTunesController sharedInstance] isPlaying] == NO) {
 		[notificationController disappear];
+		[self stopLRCTimer];
 		return;
+	}
+	
+	if (lyricsController) {
+		lyricsController.track = newTrack;
+		[self setLyricsForTrack:newTrack];
 	}
 	
 	// if I reused the window then text got blurred
@@ -189,12 +201,12 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	NSWindow *w = [notification object];
 	
 	if ([w isEqualTo:lyricsController.window]) {
-		[lyricsController release]; lyricsController = nil;
 		if (lrcTimer) {
 			[lrcTimer invalidate];
 			[lrcTimer release];
 			lrcTimer = nil;
 		}
+		[lyricsController release]; lyricsController = nil;
 	}
 	else if ([w isEqualTo:preferencesController.window]) {
 		[preferencesController release]; preferencesController = nil;
@@ -236,13 +248,17 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 - (void)setLyricsForTrack:(iTunesTrack *)track
 {
-	NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", [track artist], [track name]];
-	NSString *desired_lrc;
-	assert(store != nil);
 	if (lrcTimer) {
 		[self stopLRCTimer];
 		//[self cancelLoad];
 	}
+	if (track == nil) {
+		return;
+	}
+	NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", [track artist], [track name]];
+	NSString *desired_lrc;
+	assert(store != nil);
+
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
 		lyricsController.lyricsText = @"Trying to download lyrics";
@@ -351,8 +367,9 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 - (void)lrcRoller:(NSTimer *)aTimer
 {
+
 	NSInteger currentPosition = [[iTunesController sharedInstance] playerPosition]; // player position
-	//DeLog(@"%@", [pl getLyricsByTime:currentPosition]);
+	DeLog(@"%@", [lrcPool getLyricsByTime:currentPosition]);
 	lyricsController.lyricsText = [NSString stringWithFormat:@"lyrics: %@", [lrcPool getLyricsByTime:currentPosition]];
 }
 

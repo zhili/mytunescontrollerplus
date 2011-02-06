@@ -110,6 +110,7 @@
 		[self.delegate iTunesTrackDidChange:track];
 }
 
+// current track's playing time.
 - (NSInteger)playerPosition
 {
 	if (iTunesApp.isRunning == NO) 
