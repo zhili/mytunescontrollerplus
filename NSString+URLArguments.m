@@ -21,6 +21,26 @@
 																kCFStringEncodingGB_18030_2000) autorelease];
 }
 
+- (NSString*)stringByEscapingForURLArgumentUsingEncodingGBk {
+	// Encode all the reserved characters, per RFC 3986
+	// (<http://www.ietf.org/rfc/rfc3986.txt>)
+	NSString *escapeChars = @"!*'();:@&=+$,/?%#[]"; 
+	// use chinese gbk encoding for sogou.
+	return [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, 
+																(CFStringRef)self, NULL, (CFStringRef)escapeChars, 
+																kCFStringEncodingGBK_95) autorelease];
+}
+
+
+- (NSString*)gtm_stringByEscapingForURLArgument {
+	// Encode all the reserved characters, per RFC 3986
+	// (<http://www.ietf.org/rfc/rfc3986.txt>)
+	NSString *escapeChars = @"!*'();:@&=+$,/?%#[]"; 
+	return [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL, 
+																(CFStringRef)self, NULL, (CFStringRef)escapeChars, 
+																kCFStringEncodingUTF8) autorelease];
+}
+
 - (NSString*)gtm_stringByUnescapingFromURLArgument {
 	NSMutableString *resultString = [NSMutableString stringWithString:self];
 	[resultString replaceOccurrencesOfString:@"+"

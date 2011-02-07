@@ -23,7 +23,7 @@
 		
 		lrcStorePath_ = [[@"~/Library/Application Support/MyTunesControllerPlus/" stringByExpandingTildeInPath] copy];
 
-		lrcLibraryFilePath_ = [[@"~/Library/Application Support/MyTunesControllerPlus/lrcParser.plist" stringByExpandingTildeInPath] copy];
+		lrcLibraryFilePath_ = [[@"~/Library/Application Support/MyTunesControllerPlus/MyTunesControllerPlus.plist" stringByExpandingTildeInPath] copy];
 		
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		if ([fileManager fileExistsAtPath:lrcStorePath_] == NO) {

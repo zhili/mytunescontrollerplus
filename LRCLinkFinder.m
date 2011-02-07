@@ -2,12 +2,46 @@
 #import "LRCLinkFinder.h"
 #import "basictypes.h"
 #include <libxml/HTMLparser.h>
-
+#import "NSString+URLArguments.h"
+#import "chardetect.h"
 #define SOGOU_LRC_FOOTPRINT "downlrc.jsp"
 #define BAIDU_LRC_FOOTPRINT ".lrc"
 #define LRC123_LRC_FOOTPRINT "/download/lrc"
 #define LRC123_BASEURL @"http://www.lrc123.com"
 #define SOGOU_BASEURL @"http://mp3.sogou.com/"
+#define SOSO_URL_TEMPLATE @"http://cgi.music.soso.com/fcgi-bin/fcg_download_lrc.q?song=%@&singer=%@&down=1"
+#define BUFSIZE	4096
+
+NSStringEncoding detectedEncodingForCstr(const char *data)
+{
+    chardet_t chardetContext;
+    char      charset[CHARDET_MAX_ENCODING_NAME];
+    int       ret;
+	
+    CFStringEncoding cfenc;
+    CFStringRef      charsetStr;
+	
+    chardet_create(&chardetContext);
+    //chardet_reset(chardetContext);
+    chardet_handle_data(chardetContext, data,
+                        strlen(data) > BUFSIZE ? BUFSIZE : strlen(data));
+    chardet_data_end(chardetContext);
+	
+    ret = chardet_get_charset(chardetContext, charset, CHARDET_MAX_ENCODING_NAME);	
+    chardet_destroy(chardetContext);
+
+    if (ret != CHARDET_RESULT_OK || strlen(charset) == 0) // when file is no new line at end, charset' length would be Zero.
+        return NSUTF8StringEncoding;
+	
+    charsetStr = CFStringCreateWithCString(NULL, charset, kCFStringEncodingUTF8); // create cf string from c compatable string(char*)
+    cfenc = CFStringConvertIANACharSetNameToEncoding(charsetStr); // convert the encoding string name to a encoding enum type.
+    CFRelease(charsetStr);
+	
+	
+    return CFStringConvertEncodingToNSStringEncoding(cfenc); // core fundation(cf) encoding string to ns core data encoding string
+}
+
+
 // If we're building with the 10.5 SDK, define our own version of this symbol.
 
 #if LIBXML_VERSION < 20703
@@ -23,7 +57,7 @@ enum {
 // Read/write versions of public properties
 
 @property (copy, readwrite) NSError *error;
-
+@property BOOL parsingLRC;
 // Internal properties
 
 @property (retain, readwrite) NSMutableArray *mutableLrcURLs;
@@ -38,6 +72,8 @@ enum {
 @synthesize mutableLrcURLs = _mutableLrcURLs;
 @synthesize useRelaxedParsing = _useRelaxedParsing;
 @synthesize useSogouEngine = _useSogouEngine;
+@synthesize parsingLRC = _parsingLRC;
+@synthesize lrcEngine = _lrcEngine;
 
 - (id)initWithData:(NSData *)data fromURL:(NSURL *)url
 {
@@ -78,14 +114,16 @@ enum {
 - (void)addURLForCString:(const char *)cStr toArray:(NSMutableArray *)array
 // Adds a URL to the specified array, handling lots of wacky edge cases.
 {
-    NSString *  str;
-    NSURL *     url;
+    NSString *str;
+    NSURL *url;
     
     // cStr should be ASCII but, just to be permissive, we'll accept UTF-8. 
     // Handle the case where cStr is not valid UTF-8.
     
-    str = [NSString stringWithUTF8String:cStr];
-    if (str == nil) {
+    //str = [NSString stringWithCString:cStr encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)];
+	NSLog(@"%d",  detectedEncodingForCstr(cStr));
+    str = [NSString stringWithCString:cStr encoding:detectedEncodingForCstr(cStr)];
+	if (str == nil) {
         assert(NO);
     } else {
 		
@@ -93,13 +131,31 @@ enum {
         // This can and does fail on real world systems (curse those users 
         // and their bogus HTML!).
 		NSURL *baseLrcURL;
-		if (self.useSogouEngine) {
-			baseLrcURL = [NSURL URLWithString:SOGOU_BASEURL];
-		} else {
-			baseLrcURL = [NSURL URLWithString:LRC123_BASEURL];
-		}
+		NSArray *sosoTokens;
+		switch (self.lrcEngine) {
+			case LRC123_LRC_ENGINE:
+				baseLrcURL = [NSURL URLWithString:LRC123_BASEURL];
+				url = [NSURL URLWithString:str relativeToURL:baseLrcURL];
+				break;
+			case SOGOU_LRC_ENGINE:
+				baseLrcURL = [NSURL URLWithString:SOGOU_BASEURL];
+				url = [NSURL URLWithString:str relativeToURL:baseLrcURL];
+				break;
+			case SOSO_LRC_ENGINE:
+				sosoTokens = [str componentsSeparatedByString:@"@@"];
+				NSString *song = [sosoTokens objectAtIndex:1];
+				NSString *singer = [sosoTokens objectAtIndex:3];
+				NSString *sosoDonwloadURLStr = [NSString stringWithFormat:SOSO_URL_TEMPLATE, 
+												[song stringByEscapingForURLArgumentUsingEncodingGBk],
+												[singer stringByEscapingForURLArgumentUsingEncodingGBk]];
+				DeLog(@"%@", sosoDonwloadURLStr);
+				url = [NSURL URLWithString:sosoDonwloadURLStr];
+				break;
 
-        url = [NSURL URLWithString:str relativeToURL:baseLrcURL];
+			default:
+				DeLog(@"never goes here");
+				break;
+		}
         if (url == nil) {
             DeLog(@"Could not construct URL from '%@' relative to '%@'.", str, self.URL);
         } else {
@@ -109,9 +165,18 @@ enum {
     }
 }
 
+static const char *SOSO_LRC_FOOTPRINT = "div";
+static const NSUInteger SOSO_LRC_FOOTPRINT_LENGHT = 3;
+
+static const char *SOSO_LRC_FOOTPRINT_ATTR = "class";
+static const NSUInteger SOSO_LRC_FOOTPRINT__ATTR_LENGHT = 5;
+
+static const char *SOSO_LRC_FOOTPRINT_ATTR_VALUE = "data";
+static const NSUInteger SOSO_LRC_FOOTPRINT_ATTR_VALUE_LENGHT = 4;
+
 static void StartElementSAXFunc(
-								void *          ctx,
-								const xmlChar * name,
+								void *ctx,
+								const xmlChar *name,
 								const xmlChar **attrs
 								)
 {
@@ -131,25 +196,47 @@ static void StartElementSAXFunc(
         // Check for the tags we care about and, within them, check for 
         // the attributes we care about.
         
-        if ( strcmp( (const char *) name, "a") == 0 ) {
+        if (!strncmp((const char *)name, SOSO_LRC_FOOTPRINT, SOSO_LRC_FOOTPRINT_LENGHT) ) {
             attrIndex = 0;
             while (attrs[attrIndex] != NULL) {
-                if ( strcmp( (const char *) attrs[attrIndex], "href") == 0 ) {
-					
-					if ( strlen((const char*) attrs[attrIndex + 1]) >= 11 && strncmp((const char*) attrs[attrIndex + 1], SOGOU_LRC_FOOTPRINT, 11) == 0 ||
-						 strlen((const char*) attrs[attrIndex + 1]) >= 13 && strncmp((const char*) attrs[attrIndex+1], LRC123_LRC_FOOTPRINT, 13) == 0)
-						[obj addURLForCString:(const char *) attrs[attrIndex + 1] toArray:obj.mutableLrcURLs];
+                if (!strncmp((const char *)attrs[attrIndex], SOSO_LRC_FOOTPRINT_ATTR, SOSO_LRC_FOOTPRINT__ATTR_LENGHT) &&
+					!strncmp((const char *)attrs[attrIndex+1], SOSO_LRC_FOOTPRINT_ATTR_VALUE, SOSO_LRC_FOOTPRINT_ATTR_VALUE_LENGHT)) {
+					obj.parsingLRC = YES;
 				
-                }
+                } 
+				if (!strncmp((const char *)attrs[attrIndex], "href", 4) && (!strncmp((const char*)attrs[attrIndex + 1], SOGOU_LRC_FOOTPRINT, 11) ||
+					!strncmp((const char*)attrs[attrIndex+1], LRC123_LRC_FOOTPRINT, 13))) {
+					[obj addURLForCString:(const char *) attrs[attrIndex + 1] toArray:obj.mutableLrcURLs];
+				}
                 attrIndex += 2;
             }
         }
     }
 }
 
+static void charactersFoundSAXFunc(void *ctx, const xmlChar *ch, int len)
+{
+	QHTMLLinkFinder *obj;
+	 obj = (QHTMLLinkFinder *) ctx;
+	if (obj.parsingLRC) {
+		[obj addURLForCString:(const char*)ch toArray:obj.mutableLrcURLs];
+	}
+}
+
+static void endElementSAX(void * ctx, const xmlChar * name)
+{
+	QHTMLLinkFinder *obj;
+	obj = (QHTMLLinkFinder *) ctx;
+	if (obj.parsingLRC) {
+		obj.parsingLRC = NO;
+	}
+}
+
 static xmlSAXHandler gSAXHandler = {
     .initialized  = XML_SAX2_MAGIC,
-    .startElement = StartElementSAXFunc
+	.characters = charactersFoundSAXFunc,
+    .startElement = StartElementSAXFunc,
+	.endElement = endElementSAX
 };
 
 - (void)main

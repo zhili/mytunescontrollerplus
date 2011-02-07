@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "QWatchedOperationQueue.h"
 #import "LrcStorage.h"
+#import "basictypes.h"
 
 @protocol lrcFetcherDelegate;
 
@@ -16,7 +17,7 @@
 	NSString *_artist;
 	NSString *_title;
 	LrcStorage *_lrcStorage;
-	BOOL _useSogouEngine;
+	LRC_ENGINE _lrcEngine;
 }
 
 - (id)initWithArtist:(NSString*)artist
@@ -27,7 +28,7 @@
 @property (nonatomic, copy, readonly) NSString *title;
 
 // Things you can change before calling -start.
-@property (nonatomic, assign, readwrite) BOOL useSogouEngine;
+@property LRC_ENGINE lrcEngine;
 @property (nonatomic, copy, readwrite) NSString *lrcDirPath;      // defaults to the "images" directory within the temporary directory
 // don't change this after calling -startWithURLString:
 @property (nonatomic, assign, readwrite) id<lrcFetcherDelegate> delegate;

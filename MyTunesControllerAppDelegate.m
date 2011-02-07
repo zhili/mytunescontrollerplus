@@ -62,7 +62,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 {
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
 															 [NSNumber numberWithUnsignedInteger:3], CONotificationCorner,
-															  NO, COSogouLRCEngine, 
+															 [NSNumber numberWithUnsignedInteger:1], COLRCEngine, 
 															 nil]];
 }
 
@@ -70,6 +70,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 {
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.NotificationCorner"];
+	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.LRCEngine"];
 	[store release];
 	[self freeLRCPool];
 	[lyricsController release];
@@ -92,7 +93,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 																 options:NSKeyValueObservingOptionInitial
 																 context:nil];
 	[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self
-															  forKeyPath:@"values.SogouLRCEngine"
+															  forKeyPath:@"values.LRCEngine"
 																 options:NSKeyValueObservingOptionInitial
 																 context:nil];
 	[[iTunesController sharedInstance] setDelegate:self];
@@ -104,10 +105,12 @@ const NSTimeInterval kRefetchInterval = 0.5;
 {
 	if ([keyPath isEqualToString:@"values.NotificationCorner"]) {
 		positionCorner = [[[NSUserDefaults standardUserDefaults] objectForKey:CONotificationCorner] unsignedIntValue];
+		DeLog(@"%d", positionCorner);
 		if (notificationController)
 			[notificationController setPositionCorner:positionCorner];
-	} else if ([keyPath isEqualToString:@"values.SogouLRCEngine"]) {
-		useSogouLRCEngine = [[NSUserDefaults standardUserDefaults] boolForKey:COSogouLRCEngine];
+	} else if ([keyPath isEqualToString:@"values.LRCEngine"]) {
+		lrcEngine = [[[NSUserDefaults standardUserDefaults] objectForKey:COLRCEngine] unsignedIntValue];
+		DeLog(@"%d", lrcEngine);
 	}
 
 	else 
@@ -311,9 +314,8 @@ const NSTimeInterval kRefetchInterval = 0.5;
 												  Title:[track name]
 											 LRCStorage:store];
 	[fetcher setDelegate:self];
-	if (useSogouLRCEngine ) {
-		[fetcher setUseSogouEngine:YES];
-	}
+
+	[fetcher setLrcEngine:lrcEngine];
 	[fetcher start];
 	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:15];
 //

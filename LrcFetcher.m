@@ -9,7 +9,7 @@
 #define SOGOU_QUERY_AT_TEMPLATE @"http://mp3.sogou.com/gecisearch.so?query=%@+%@"
 #define BAIDU_QUERY_AT_TEMPLATE @"http://mp3.baidu.com/m?f=ms&tn=baidump3lyric&ct=150994944&lf=2&rn=10&word=%@&lm=-1"
 #define LRC123 @"http://www.lrc123.com/?keyword=%@+%@&field=all"
-
+#define SOSO_QUERY_AT_TEMPLATE @"http://cgi.music.soso.com/fcgi-bin/m.q?w=%@+%@&source=1&t=7"
 
 @interface lrcFetcher ()
 @property (nonatomic, copy, readwrite) NSError *error;
@@ -30,7 +30,7 @@
 @synthesize lrcDirPath = _lrcDirPath;
 @synthesize runningOperationCount = _runningOperationCount;
 @synthesize delegate = _delegate;
-@synthesize useSogouEngine = _useSogouEngine;
+@synthesize lrcEngine = _lrcEngine;
 
 - (id)initWithArtist:(NSString*)artist
 			   Title:(NSString*)title
@@ -89,21 +89,34 @@
 {
 	NSString *query;
 	NSURL *url;
-	if (self.useSogouEngine) {
-		query = [NSString stringWithFormat:SOGOU_QUERY_AT_TEMPLATE, 
-				 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
-				 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
-		DeLog(@"using sogou.");
-	} else {
-		query = [NSString stringWithFormat:LRC123, 
-				 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
-				 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
+	switch (self.lrcEngine) {
+		case LRC123_LRC_ENGINE:
+			query = [NSString stringWithFormat:LRC123, 
+					 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
+					 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
+			DeLog(@"using lrc123.");
+			break;
+			
+		case SOGOU_LRC_ENGINE:
+			query = [NSString stringWithFormat:SOGOU_QUERY_AT_TEMPLATE, 
+					 [_artist stringByEscapingForURLArgumentUsingEncodingGB_18030], 
+					 [_title stringByEscapingForURLArgumentUsingEncodingGB_18030]];
+			DeLog(@"using sogou.");
+			break;
+			
+		case SOSO_LRC_ENGINE:
+			query = [NSString stringWithFormat:SOSO_QUERY_AT_TEMPLATE, 
+					 [_artist stringByEscapingForURLArgumentUsingEncodingGBk], 
+					 [_title stringByEscapingForURLArgumentUsingEncodingGBk]];
+			DeLog(@"using soso.");
+			break;
+		default:
+			break;
 	}
 
 	url = [NSURL URLWithString:query];
 	assert(url != nil);
     assert([[[url scheme] lowercaseString] isEqual:@"http"] || [[[url scheme] lowercaseString] isEqual:@"https"]);
-	
     [self startPageGet:url];
     return YES;
 }
@@ -183,13 +196,12 @@
 		DeLog(@"%@", [op.lastResponse URL]);
         // Don't use op.URL here, but rather [op.lastResponse URL] so that relatives 
         // URLs work in the face of redirection.
+		//DeLog(@"%@", op.responseBody);
         nextOp = [[[QHTMLLinkFinder alloc] initWithData:op.responseBody fromURL:[op.lastResponse URL]] autorelease];
         assert(nextOp != nil);
         
         nextOp.useRelaxedParsing = YES;
-        if (self.useSogouEngine) {
-			nextOp.useSogouEngine = YES;
-		}
+		nextOp.lrcEngine = self.lrcEngine;
         [self.queue addOperation:nextOp finishedAction:@selector(parseDone:)];
         [self operationDidStart];
         

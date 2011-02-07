@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "basictypes.h"
 
 @interface QHTMLLinkFinder : NSOperation
 {
@@ -8,7 +9,9 @@
     NSMutableArray *    _mutableLrcURLs;
     NSError *           _error;
 	NSURL *_baseLrcURL;
-	BOOL _useSogouEngine;
+	//BOOL _useSogouEngine;
+	LRC_ENGINE _lrcEngine;
+	BOOL _parsingLRC;
 }
 
 - (id)initWithData:(NSData *)data fromURL:(NSURL *)url;
@@ -16,7 +19,7 @@
 // links relative to the url.
 
 // Things that are configured by the init method and can't be changed.
-
+@property LRC_ENGINE lrcEngine;
 @property (copy, readonly) NSData *data;
 @property (copy, readonly) NSURL *URL;
 // @property (copy, readonly) NSURL *baseLrcURL;

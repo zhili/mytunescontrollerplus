@@ -51,7 +51,7 @@
 	NSTimer *lrcTimer;
 	LrcStorage *store;
 	LrcTokensPool *lrcPool;
-	BOOL useSogouLRCEngine;
+	BOOL lrcEngine;
 	NSUInteger prevLrcItemId;
 }
 

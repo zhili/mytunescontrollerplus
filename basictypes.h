@@ -12,3 +12,11 @@
 #else
 #   define DeLog(...) do { } while(0)
 #endif
+
+enum LRC_ENGINE {
+	LRC123_LRC_ENGINE = 1,
+	SOGOU_LRC_ENGINE,
+	SOSO_LRC_ENGINE,
+};
+
+typedef enum LRC_ENGINE LRC_ENGINE;
