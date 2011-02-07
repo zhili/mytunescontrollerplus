@@ -317,7 +317,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 	[fetcher setLrcEngine:lrcEngine];
 	[fetcher start];
-	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:15];
+	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:20];
 //
 //	// try to make this none-blocking?.....
 	NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];

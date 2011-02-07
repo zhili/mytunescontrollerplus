@@ -121,8 +121,8 @@ enum {
     // Handle the case where cStr is not valid UTF-8.
     
     //str = [NSString stringWithCString:cStr encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)];
-	NSLog(@"%d",  detectedEncodingForCstr(cStr));
-    str = [NSString stringWithCString:cStr encoding:detectedEncodingForCstr(cStr)];
+	//NSLog(@"%d",  detectedEncodingForCstr(cStr));
+    str = [NSString stringWithUTF8String:cStr]; //encoding:detectedEncodingForCstr(cStr)];
 	if (str == nil) {
         assert(NO);
     } else {
@@ -204,13 +204,23 @@ static void StartElementSAXFunc(
 					obj.parsingLRC = YES;
 				
                 } 
-				if (!strncmp((const char *)attrs[attrIndex], "href", 4) && (!strncmp((const char*)attrs[attrIndex + 1], SOGOU_LRC_FOOTPRINT, 11) ||
-					!strncmp((const char*)attrs[attrIndex+1], LRC123_LRC_FOOTPRINT, 13))) {
-					[obj addURLForCString:(const char *) attrs[attrIndex + 1] toArray:obj.mutableLrcURLs];
-				}
                 attrIndex += 2;
             }
         }
+		
+		if (!strcmp((const char *)name, "a")) {
+			attrIndex = 0;
+            while (attrs[attrIndex] != NULL) {
+				if (strncmp((const char *)attrs[attrIndex], "href", 4) == 0) { 
+					if (!strncmp((const char*)attrs[attrIndex+1], SOGOU_LRC_FOOTPRINT, 11) ||
+						!strncmp((const char*)attrs[attrIndex+1], LRC123_LRC_FOOTPRINT, 13)) {
+						[obj addURLForCString:(const char *)attrs[attrIndex+1] toArray:obj.mutableLrcURLs];
+					}
+				}
+				attrIndex += 2;
+			}
+
+		}
     }
 }
 
