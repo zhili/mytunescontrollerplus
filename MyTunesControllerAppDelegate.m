@@ -258,7 +258,8 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", [track artist], [track name]];
 	NSString *desired_lrc;
 	assert(store != nil);
-
+	
+	prevLrcItemId = NSUIntegerMax;
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
 		lyricsController.lyricsText = @"Trying to download lyrics";
@@ -367,10 +368,15 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 - (void)lrcRoller:(NSTimer *)aTimer
 {
-
-	NSInteger currentPosition = [[iTunesController sharedInstance] playerPosition]; // player position
-	DeLog(@"%@", [lrcPool getLyricsByTime:currentPosition]);
-	lyricsController.lyricsText = [NSString stringWithFormat:@"lyrics: %@", [lrcPool getLyricsByTime:currentPosition]];
+	DeLog(@"insight timer");
+	NSUInteger currentLyricsId;
+	NSInteger currentPosition = [[iTunesController sharedInstance] playerPosition];
+	NSString *currentLyrics = [lrcPool getLyricsByTime:currentPosition lyricsID: &currentLyricsId];
+	if (prevLrcItemId != currentLyricsId) {
+		DeLog(@"new item.");
+		lyricsController.lyricsText = currentLyrics;
+		prevLrcItemId = currentLyricsId;
+	}
 }
 
 - (void)_openPreferences 

@@ -52,6 +52,7 @@
 	LrcStorage *store;
 	LrcTokensPool *lrcPool;
 	BOOL useSogouLRCEngine;
+	NSUInteger prevLrcItemId;
 }
 
 @property (assign) IBOutlet NSWindow *window;
