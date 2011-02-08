@@ -71,7 +71,6 @@ enum {
 @synthesize error = _error;
 @synthesize mutableLrcURLs = _mutableLrcURLs;
 @synthesize useRelaxedParsing = _useRelaxedParsing;
-@synthesize useSogouEngine = _useSogouEngine;
 @synthesize parsingLRC = _parsingLRC;
 @synthesize lrcEngine = _lrcEngine;
 

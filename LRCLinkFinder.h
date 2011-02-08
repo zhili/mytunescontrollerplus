@@ -26,7 +26,6 @@
 // Things you can configure before queuing the operation.
 
 @property (assign, readwrite) BOOL useRelaxedParsing;
-@property (assign, readwrite) BOOL useSogouEngine;
 // Things that are only really useful after the operation is finished.
 
 @property (copy, readonly) NSError *error;
