@@ -121,15 +121,20 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 - (void)lrcPageLoadDidFinish:(NSError *)error
 {
+	DeLog(@"%d", [NSThread isMainThread]);
 	if (error != nil) {
-		lyricsController.lyricsText = @"Network error or page not exit";// [NSString stringWithFormat:@"%@:%@", [error domain], [error userInfo]];
+		NSString *pageError = @"Network error or page not exit";
+		[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:pageError waitUntilDone:NO];
+		//lyricsController.lyricsText = @"Network error or page not exit";// [NSString stringWithFormat:@"%@:%@", [error domain], [error userInfo]];
 	}
 }
 
 - (void)lrcPageParseDidFinish:(NSError *)error
 {
+	DeLog(@"%@", [NSThread currentThread]);
 	if (error != nil) {
-		lyricsController.lyricsText = @"No lyrics available";
+		NSString *parseError = @"No lyrics available";
+		[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:parseError waitUntilDone:NO];
 	}
 }
 
@@ -139,10 +144,13 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	if ([title isEqualToString:[track name]] && [artist isEqualToString:[track artist]]) {
 		// compose the lrc file key.
 		NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", artist, title];
-		lyricsController.lyricsText = @"Download success.";
+		//NSString *downloadOk = @"Download success";
+		//[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:downloadOk waitUntilDone:NO];
 		[self resetLRCPoll:[store getLocalLRCFile:lrcFileName]];
 		// start the timer from main thread
 		[self performSelectorOnMainThread:@selector(startLRCTimer) withObject:nil waitUntilDone:NO];
+		// try start timer here. may roll back later.
+		//[self startLRCTimer];
 		DeLog(@"Starting lyrics:..");
 	}
 }
@@ -268,6 +276,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		lyricsController.lyricsText = @"Trying to download lyrics";
 		NSThread* timerThread = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; //Create a new thread
 		[timerThread start]; //start the thread
+		return;
 
 	} else {
 		[self resetLRCPoll:desired_lrc];
@@ -317,18 +326,19 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 	[fetcher setLrcEngine:lrcEngine];
 	[fetcher start];
-	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:20];
+	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:30];
 //
 //	// try to make this none-blocking?.....
 	NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];
 //
 	do {
-		[[NSRunLoop currentRunLoop] runUntilDate:stopDate]; //NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+		[[NSRunLoop currentRunLoop] runUntilDate:stopDate]; //runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
 	} while (!fetcher.done && [giveUpDate timeIntervalSinceNow] > 0);
 	
-	// end with timeout.
+	// end with timeout. this should might only at my home with 53.6kbps bandwith...
 	if ([giveUpDate timeIntervalSinceNow] < 0) {
-		lyricsController.lyricsText = @"Network Timeout:(";
+		NSString *timeoutError = @"Network Timeout:(";
+		[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:timeoutError waitUntilDone:NO];
 	}
 	
 	[thePool release];
@@ -379,6 +389,11 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		lyricsController.lyricsText = currentLyrics;
 		prevLrcItemId = currentLyricsId;
 	}
+}
+
+- (void)setLrcWindowDisplay:(NSString*)lyrics
+{
+	lyricsController.lyricsText = lyrics;
 }
 
 - (void)_openPreferences 
