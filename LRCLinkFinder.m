@@ -93,7 +93,7 @@ enum {
     //str = [NSString stringWithCString:cStr encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)];
 	//NSLog(@"%d",  detectedEncodingForCstr(cStr));
 
-	NSString *str = [[[NSString alloc] initWithData:_characterBuffer encoding:NSUTF8StringEncoding] autorelease];
+	NSString *str = [[NSString alloc] initWithData:_characterBuffer encoding:NSUTF8StringEncoding];
 	[_characterBuffer setLength:0];
     //str = [NSString stringWithUTF8String:cStr]; //encoding:detectedEncodingForCstr(cStr)];
 	if (str == nil) {
@@ -144,6 +144,7 @@ enum {
 			DeLog(@"new lrc download url: %@", url);
 		}
     }
+	[str release];
 }
 
 /*
