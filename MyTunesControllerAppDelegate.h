@@ -32,7 +32,7 @@
 #import "LrcTokensPool.h"
 #import "LRCFetcher.h"
 
-@class LyricsWindowController, NotificationWindowController, PreferencesController, StatusView;
+@class LRCManagerController, LyricsWindowController, NotificationWindowController, PreferencesController, StatusView;
 
 @interface MyTunesControllerAppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate, lrcFetcherDelegate> 
 {
@@ -48,6 +48,7 @@
 	LyricsWindowController *lyricsController;
 	NotificationWindowController *notificationController;
 	PreferencesController *preferencesController;
+	LRCManagerController *lrcManagerController;
 	NSTimer *lrcTimer;
 	LrcStorage *store;
 	LrcTokensPool *lrcPool;

@@ -141,14 +141,22 @@ enum {
 				url = [NSURL URLWithString:str relativeToURL:baseLrcURL];
 				break;
 			case SOSO_LRC_ENGINE:
+				DeLog(@"%@", str);
 				sosoTokens = [str componentsSeparatedByString:@"@@"];
-				NSString *song = [sosoTokens objectAtIndex:1];
-				NSString *singer = [sosoTokens objectAtIndex:3];
-				NSString *sosoDonwloadURLStr = [NSString stringWithFormat:SOSO_URL_TEMPLATE, 
-												[song stringByEscapingForURLArgumentUsingEncodingGBk],
-												[singer stringByEscapingForURLArgumentUsingEncodingGBk]];
-				DeLog(@"%@", sosoDonwloadURLStr);
-				url = [NSURL URLWithString:sosoDonwloadURLStr];
+				DeLog(@"%d", [sosoTokens count]);
+				if ([sosoTokens count] > 4) {
+					NSString *song = [sosoTokens objectAtIndex:1];
+					NSString *singer = [sosoTokens objectAtIndex:3];
+					NSString *sosoDownloadURLStr = [NSString stringWithFormat:SOSO_URL_TEMPLATE, 
+													[song stringByEscapingForURLArgumentUsingEncodingGBk],
+													[singer stringByEscapingForURLArgumentUsingEncodingGBk]];
+					url = [NSURL URLWithString:sosoDownloadURLStr];
+					DeLog(@"%@", sosoDownloadURLStr);
+				} else {
+					url = nil;
+				}
+
+
 				break;
 
 			default:
@@ -226,13 +234,17 @@ static void StartElementSAXFunc(
 static void charactersFoundSAXFunc(void *ctx, const xmlChar *ch, int len)
 {
 	QHTMLLinkFinder *obj;
-	 obj = (QHTMLLinkFinder *) ctx;
+	obj = (QHTMLLinkFinder *) ctx;
 	if (obj.parsingLRC) {
 		[obj addURLForCString:(const char*)ch toArray:obj.mutableLrcURLs];
+		// end here to grid of the bug find in parsing
+		// http://cgi.music.soso.com/fcgi-bin/m.q?w=Bruno%20Mars+Just%20the%20Way%20You%20Are&source=1&t=7
+		// the error was caused by an "&"
+		obj.parsingLRC = NO;
 	}
 }
 
-static void endElementSAX(void * ctx, const xmlChar * name)
+static void endElementSAX(void * ctx, const xmlChar *name)
 {
 	QHTMLLinkFinder *obj;
 	obj = (QHTMLLinkFinder *) ctx;

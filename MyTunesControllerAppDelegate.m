@@ -32,6 +32,7 @@
 #import "LyricsWindowController.h"
 #import "NotificationWindowController.h"
 #import "PreferencesController.h"
+#import "LRCManagerController.h"
 #import "iTunesController.h"
 #import "StatusView.h"
 #import "UserDefaults.h"
@@ -217,12 +218,15 @@ const NSTimeInterval kRefetchInterval = 0.5;
 			[lrcTimer release];
 			lrcTimer = nil;
 		}
+		[store release]; store = nil;
 		[lyricsController release]; lyricsController = nil;
 	}
 	else if ([w isEqualTo:preferencesController.window]) {
 		[preferencesController release]; preferencesController = nil;
 	}
-		
+	else if ([w isEqualTo:lrcManagerController.window]) {
+		[lrcManagerController release]; lrcManagerController = nil;
+	}
 }
 
 #pragma mark Actions
@@ -407,6 +411,20 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[NSApp activateIgnoringOtherApps:YES];
 }
 
+- (void)_openLRCManager 
+{
+	if ( store == nil ) {
+		store = [[LrcStorage alloc] init];
+	}
+	if (lrcManagerController == nil) {
+		lrcManagerController = [[LRCManagerController alloc] initWithStorage:store];
+		lrcManagerController.window.delegate = self;
+	}
+	
+	[lrcManagerController showWindow:self];
+	[NSApp activateIgnoringOtherApps:YES];
+}
+
 - (void)_quitApp 
 {
 	[NSApp terminate:self];
@@ -445,6 +463,11 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	
 	theItem = [mainMenu addItemWithTitle:@"Lyrics..."
 								  action:@selector(_openLyrics)
+						   keyEquivalent:@""];
+	[theItem setTarget:self];
+	
+	theItem = [mainMenu addItemWithTitle:@"LRC Manager"
+								  action:@selector(_openLRCManager)
 						   keyEquivalent:@""];
 	[theItem setTarget:self];
 	

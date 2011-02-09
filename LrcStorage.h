@@ -18,6 +18,9 @@
 - (BOOL)addLRCFile:(NSString*)fileName;
 - (NSString*)getLocalLRCFile:(NSString*)fileName;
 - (BOOL)deleteLRCFile:(NSString*)fileName;
+
+@property (nonatomic, readonly) NSUInteger itemCount;
+@property (nonatomic, readonly) NSArray *allItemKey;
 @property (nonatomic, readonly) NSString *lrcStorePath;
 @property (nonatomic, readonly) NSString *lrcLibraryFilePath;
 

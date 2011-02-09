@@ -68,6 +68,16 @@
 	return YES;
 }
 
+- (NSUInteger)itemCount 
+{
+	return [lrcFileStorage_ count];
+}
+
+- (NSArray *)allItemKey
+{
+	return [lrcFileStorage_ allKeys];
+}
+
 - (void)dealloc
 {
 	[lrcLibraryFilePath_ release];
