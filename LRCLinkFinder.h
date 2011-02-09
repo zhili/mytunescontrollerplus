@@ -9,7 +9,7 @@
     NSMutableArray *    _mutableLrcURLs;
     NSError *           _error;
 	NSURL *_baseLrcURL;
-	//BOOL _useSogouEngine;
+	NSMutableData *_characterBuffer;
 	LRC_ENGINE _lrcEngine;
 	BOOL _parsingLRC;
 }

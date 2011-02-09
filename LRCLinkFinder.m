@@ -12,34 +12,6 @@
 #define SOSO_URL_TEMPLATE @"http://cgi.music.soso.com/fcgi-bin/fcg_download_lrc.q?song=%@&singer=%@&down=1"
 #define BUFSIZE	4096
 
-NSStringEncoding detectedEncodingForCstr(const char *data)
-{
-    chardet_t chardetContext;
-    char      charset[CHARDET_MAX_ENCODING_NAME];
-    int       ret;
-	
-    CFStringEncoding cfenc;
-    CFStringRef      charsetStr;
-	
-    chardet_create(&chardetContext);
-    //chardet_reset(chardetContext);
-    chardet_handle_data(chardetContext, data,
-                        strlen(data) > BUFSIZE ? BUFSIZE : strlen(data));
-    chardet_data_end(chardetContext);
-	
-    ret = chardet_get_charset(chardetContext, charset, CHARDET_MAX_ENCODING_NAME);	
-    chardet_destroy(chardetContext);
-
-    if (ret != CHARDET_RESULT_OK || strlen(charset) == 0) // when file is no new line at end, charset' length would be Zero.
-        return NSUTF8StringEncoding;
-	
-    charsetStr = CFStringCreateWithCString(NULL, charset, kCFStringEncodingUTF8); // create cf string from c compatable string(char*)
-    cfenc = CFStringConvertIANACharSetNameToEncoding(charsetStr); // convert the encoding string name to a encoding enum type.
-    CFRelease(charsetStr);
-	
-	
-    return CFStringConvertEncodingToNSStringEncoding(cfenc); // core fundation(cf) encoding string to ns core data encoding string
-}
 
 
 // If we're building with the 10.5 SDK, define our own version of this symbol.
@@ -59,7 +31,7 @@ enum {
 @property (copy, readwrite) NSError *error;
 @property BOOL parsingLRC;
 // Internal properties
-
+@property (nonatomic, retain) NSMutableData *characterBuffer;
 @property (retain, readwrite) NSMutableArray *mutableLrcURLs;
 
 @end
@@ -73,6 +45,7 @@ enum {
 @synthesize useRelaxedParsing = _useRelaxedParsing;
 @synthesize parsingLRC = _parsingLRC;
 @synthesize lrcEngine = _lrcEngine;
+@synthesize characterBuffer = _characterBuffer;
 
 - (id)initWithData:(NSData *)data fromURL:(NSURL *)url
 {
@@ -86,14 +59,13 @@ enum {
         assert(self->_URL != nil);
         self->_mutableLrcURLs = [[NSMutableArray alloc] init];
         assert(self->_mutableLrcURLs != nil);
-		//self->_baseLrcURL = [[NSURL alloc] initWithString:LRC123_BASEURL];
-    }
+	}
     return self;
 }
 
 - (void)dealloc
 {
-	// [self->_baseLrcURL release];
+	[self->_characterBuffer release];
     [self->_mutableLrcURLs release];
     [self->_error release];
     [self->_URL release];
@@ -110,10 +82,9 @@ enum {
 }
 
 
-- (void)addURLForCString:(const char *)cStr toArray:(NSMutableArray *)array
+- (void)addURLForCString//:(const char *)cStr toArray:(NSMutableArray *)array
 // Adds a URL to the specified array, handling lots of wacky edge cases.
 {
-    NSString *str;
     NSURL *url;
     
     // cStr should be ASCII but, just to be permissive, we'll accept UTF-8. 
@@ -121,7 +92,10 @@ enum {
     
     //str = [NSString stringWithCString:cStr encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)];
 	//NSLog(@"%d",  detectedEncodingForCstr(cStr));
-    str = [NSString stringWithUTF8String:cStr]; //encoding:detectedEncodingForCstr(cStr)];
+
+	NSString *str = [[[NSString alloc] initWithData:_characterBuffer encoding:NSUTF8StringEncoding] autorelease];
+	[_characterBuffer setLength:0];
+    //str = [NSString stringWithUTF8String:cStr]; //encoding:detectedEncodingForCstr(cStr)];
 	if (str == nil) {
         assert(NO);
     } else {
@@ -166,11 +140,21 @@ enum {
         if (url == nil) {
             DeLog(@"Could not construct URL from '%@' relative to '%@'.", str, self.URL);
         } else {
-            [array addObject:url];
+            [_mutableLrcURLs addObject:url];
 			DeLog(@"new lrc download url: %@", url);
 		}
     }
 }
+
+/*
+ Character data is appended to a buffer until the current element ends
+ this fix error when parsing some html tag content with &, and splited by libxml
+ for example: http://cgi.music.soso.com/fcgi-bin/m.q?w=Bruno%20Mars+Just%20the%20Way%20You%20Are&source=1&t=7
+ */
+- (void)appendCharacters:(const char *)charactersFound length:(NSInteger)length {
+    [_characterBuffer appendBytes:charactersFound length:length];
+}
+
 
 static const char *SOSO_LRC_FOOTPRINT = "div";
 static const NSUInteger SOSO_LRC_FOOTPRINT_LENGHT = 3;
@@ -180,6 +164,7 @@ static const NSUInteger SOSO_LRC_FOOTPRINT__ATTR_LENGHT = 5;
 
 static const char *SOSO_LRC_FOOTPRINT_ATTR_VALUE = "data";
 static const NSUInteger SOSO_LRC_FOOTPRINT_ATTR_VALUE_LENGHT = 4;
+
 
 static void StartElementSAXFunc(
 								void *ctx,
@@ -221,7 +206,9 @@ static void StartElementSAXFunc(
 				if (strncmp((const char *)attrs[attrIndex], "href", 4) == 0) { 
 					if (!strncmp((const char*)attrs[attrIndex+1], SOGOU_LRC_FOOTPRINT, 11) ||
 						!strncmp((const char*)attrs[attrIndex+1], LRC123_LRC_FOOTPRINT, 13)) {
-						[obj addURLForCString:(const char *)attrs[attrIndex+1] toArray:obj.mutableLrcURLs];
+						//[obj addURLForCString:(const char *)attrs[attrIndex+1] toArray:obj.mutableLrcURLs];
+						[obj appendCharacters:(const char *)attrs[attrIndex+1] length:strlen((const char *)attrs[attrIndex+1])];
+						[obj addURLForCString];
 					}
 				}
 				attrIndex += 2;
@@ -236,11 +223,8 @@ static void charactersFoundSAXFunc(void *ctx, const xmlChar *ch, int len)
 	QHTMLLinkFinder *obj;
 	obj = (QHTMLLinkFinder *) ctx;
 	if (obj.parsingLRC) {
-		[obj addURLForCString:(const char*)ch toArray:obj.mutableLrcURLs];
-		// end here to grid of the bug find in parsing
-		// http://cgi.music.soso.com/fcgi-bin/m.q?w=Bruno%20Mars+Just%20the%20Way%20You%20Are&source=1&t=7
-		// the error was caused by an "&"
-		obj.parsingLRC = NO;
+		//[obj addURLForCString:(const char*)ch toArray:obj.mutableLrcURLs];
+		[obj appendCharacters:(const char *)ch length:len];
 	}
 }
 
@@ -249,6 +233,7 @@ static void endElementSAX(void * ctx, const xmlChar *name)
 	QHTMLLinkFinder *obj;
 	obj = (QHTMLLinkFinder *) ctx;
 	if (obj.parsingLRC) {
+		[obj addURLForCString];
 		obj.parsingLRC = NO;
 	}
 }
@@ -263,9 +248,9 @@ static xmlSAXHandler gSAXHandler = {
 - (void)main
 {
     struct _xmlParserCtxt * context;
-	
+
     // Create and run a libxml2 HTML parser.
-    
+	self.characterBuffer = [NSMutableData data];
     context = htmlCreatePushParserCtxt(
 									   &gSAXHandler,
 									   self,
@@ -314,11 +299,6 @@ static xmlSAXHandler gSAXHandler = {
         
         if (err != 0) {
             if (self.error == nil) {
-                // The libxml2 HTML parser shares the same errors as the XML parser, so we just 
-                // borrow NSXMLParser's error domain.  Keep in mind that you might encounter 
-                // errors that aren't explicitly listed in <Foundation/NSXMLParser.h>, such 
-                // as XML_HTML_UNKNOWN_TAG.  See xmlParserErrors in <libxml/xmlerror.h> for 
-                // the full list.
                 self.error = [NSError errorWithDomain:NSXMLParserErrorDomain code:err userInfo:nil];
             }
         }
@@ -327,6 +307,7 @@ static xmlSAXHandler gSAXHandler = {
         
         htmlFreeParserCtxt(context);
     }
+	self.characterBuffer = nil;
 }
 
 @end
