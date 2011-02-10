@@ -36,7 +36,7 @@
 - (id)init
 {
 	if ((self = [super initWithWindowNibName:@"LyricsWindow" owner:self])) {
-		self.lyricsText = @"";
+		lyricsText = [[NSString alloc] initWithString:@""];
 	}
 	
 	return self;
@@ -58,7 +58,7 @@
 
 - (NSFont *)lyricsFont
 {
-	return [NSFont fontWithName:@"Lucida Grande" size:10.f];
+	return [NSFont fontWithName:@"Lucida Grande" size:12.f];
 }
 
 - (NSColor *)lyricsTextColor

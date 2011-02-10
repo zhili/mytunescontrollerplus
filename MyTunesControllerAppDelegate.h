@@ -52,8 +52,9 @@
 	NSTimer *lrcTimer;
 	LrcStorage *store;
 	LrcTokensPool *lrcPool;
-	BOOL lrcEngine;
+	LRC_ENGINE lrcEngine;
 	NSUInteger prevLrcItemId;
+	BOOL enableNotification;
 }
 
 @property (assign) IBOutlet NSWindow *window;

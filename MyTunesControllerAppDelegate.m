@@ -64,6 +64,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
 															 [NSNumber numberWithUnsignedInteger:3], CONotificationCorner,
 															 [NSNumber numberWithUnsignedInteger:1], COLRCEngine, 
+															 [NSNumber numberWithBool:YES], COEnableNotification,
 															 nil]];
 }
 
@@ -72,12 +73,15 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.NotificationCorner"];
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.LRCEngine"];
+	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.EnableNotification"];
 	[store release];
 	[self freeLRCPool];
 	[lyricsController release];
 	[statusItem release];
 	[controllerItem release];
-	[notificationController release];
+	if (enableNotification) {
+		[notificationController release];
+	}
 	[preferencesController release];
 	[super dealloc];
 }
@@ -97,6 +101,10 @@ const NSTimeInterval kRefetchInterval = 0.5;
 															  forKeyPath:@"values.LRCEngine"
 																 options:NSKeyValueObservingOptionInitial
 																 context:nil];
+	[[NSUserDefaultsController sharedUserDefaultsController] addObserver:self
+															  forKeyPath:@"values.EnableNotification"
+																 options:NSKeyValueObservingOptionInitial
+																 context:nil];
 	[[iTunesController sharedInstance] setDelegate:self];
 	[self _setupStatusItem];
 	[self _updateStatusItemButtons];
@@ -107,11 +115,14 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	if ([keyPath isEqualToString:@"values.NotificationCorner"]) {
 		positionCorner = [[[NSUserDefaults standardUserDefaults] objectForKey:CONotificationCorner] unsignedIntValue];
 		DeLog(@"%d", positionCorner);
-		if (notificationController)
+		if (enableNotification && notificationController)
 			[notificationController setPositionCorner:positionCorner];
 	} else if ([keyPath isEqualToString:@"values.LRCEngine"]) {
 		lrcEngine = [[[NSUserDefaults standardUserDefaults] objectForKey:COLRCEngine] unsignedIntValue];
 		DeLog(@"%d", lrcEngine);
+	} else if ([keyPath isEqualToString:@"values.EnableNotification"]) {
+		enableNotification = [[[NSUserDefaults standardUserDefaults] objectForKey:COEnableNotification] boolValue];
+		DeLog(@"%d", enableNotification);
 	}
 
 	else 
@@ -175,7 +186,9 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	}
 	
 	if ([[iTunesController sharedInstance] isPlaying] == NO) {
-		[notificationController disappear];
+		if (notificationController) {
+			[notificationController disappear];
+		}
 		[self stopLRCTimer];
 		return;
 	}
@@ -186,19 +199,21 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	}
 	
 	// if I reused the window then text got blurred
-	if (notificationController) {
+	if (enableNotification && notificationController) {
 		[notificationController setDelegate:nil];
 		[notificationController close];
 		[notificationController release];
 		notificationController = nil;
 	}
-	notificationController = [[NotificationWindowController alloc] init];
-	[notificationController setDelegate:self];
-	[notificationController.window setAlphaValue:0.0];
-	[notificationController setTrack:newTrack];
-	[notificationController resize];
-	[notificationController setPositionCorner:positionCorner];
-	[notificationController showWindow:self];
+	if (enableNotification) {
+		notificationController = [[NotificationWindowController alloc] init];
+		[notificationController setDelegate:self];
+		[notificationController.window setAlphaValue:0.0];
+		[notificationController setTrack:newTrack];
+		[notificationController resize];
+		[notificationController setPositionCorner:positionCorner];
+		[notificationController showWindow:self];
+	}
 }
 
 - (void)notificationCanBeRemoved 

@@ -29,3 +29,4 @@
 
 NSString *CONotificationCorner = @"NotificationCorner";
 NSString *COLRCEngine = @"LRCEngine";
+NSString *COEnableNotification = @"EnableNotification";

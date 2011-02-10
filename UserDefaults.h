@@ -29,3 +29,4 @@
 
 extern NSString *CONotificationCorner;
 extern NSString *COLRCEngine;
+extern NSString *COEnableNotification ;
