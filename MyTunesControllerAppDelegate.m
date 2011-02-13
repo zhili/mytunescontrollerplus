@@ -63,7 +63,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 {
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
 															 [NSNumber numberWithUnsignedInteger:3], CONotificationCorner,
-															 [NSNumber numberWithUnsignedInteger:1], COLRCEngine, 
+															 [NSNumber numberWithUnsignedInteger:2], COLRCEngine, 
 															 [NSNumber numberWithBool:YES], COEnableNotification,
 															 nil]];
 }
@@ -75,6 +75,10 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.LRCEngine"];
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.EnableNotification"];
 	[store release];
+	if (thread_) {
+		[thread_ cancel];
+		[thread_ release];
+	}
 	[self freeLRCPool];
 	[lyricsController release];
 	[statusItem release];
@@ -136,7 +140,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	DeLog(@"%d", [NSThread isMainThread]);
 	if (error != nil) {
 		NSString *pageError = @"Network error or page not exit";
-		[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:pageError waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:pageError waitUntilDone:NO];
 		//lyricsController.lyricsText = @"Network error or page not exit";// [NSString stringWithFormat:@"%@:%@", [error domain], [error userInfo]];
 	}
 }
@@ -146,7 +150,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	DeLog(@"%@", [NSThread currentThread]);
 	if (error != nil) {
 		NSString *parseError = @"No lyrics available";
-		[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:parseError waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:parseError waitUntilDone:NO];
 	}
 }
 
@@ -156,13 +160,14 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	if ([title isEqualToString:[track name]] && [artist isEqualToString:[track artist]]) {
 		// compose the lrc file key.
 		NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", artist, title];
-		//NSString *downloadOk = @"Download success";
-		//[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:downloadOk waitUntilDone:NO];
+
 		[self resetLRCPoll:[store getLocalLRCFile:lrcFileName]];
 		// start the timer from main thread
 		[self performSelectorOnMainThread:@selector(startLRCTimer) withObject:nil waitUntilDone:NO];
 		// try start timer here. may roll back later.
 		//[self startLRCTimer];
+		//NSString *downloadOk = @"";
+		//[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:downloadOk waitUntilDone:NO];
 		DeLog(@"Starting lyrics:..");
 	}
 }
@@ -179,8 +184,9 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		[self stopLRCTimer];
 		// the lyrics windows may not yet opened.
 		if (lyricsController) {
-			lyricsController.lyricsText = @"";
+			lyricsController.statusText = @"";
 			lyricsController.track = nil;
+			lyricsController.lyricsPool = nil;
 		}
 		return;
 	}
@@ -244,6 +250,29 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	}
 }
 
+- (void)windowDidResize:(NSNotification*)notification 
+{
+	NSWindow *w = [notification object];
+	
+	if ([w isEqualTo:lyricsController.window]) {
+		// update lyrics location.
+		DeLog("window resize update lyrics.");
+		NSUInteger currentLyricsId;
+		NSInteger currentPosition = [[iTunesController sharedInstance] playerPosition];
+		//NSString *currentLyrics = 
+		// lrcpoll will be ni if there are no lyrics avaiable.
+		if (lrcPool != nil) {
+			[lrcPool getLyricsByTime:currentPosition lyricsID: &currentLyricsId];
+			if (prevLrcItemId != currentLyricsId) {
+				//lyricsController.lyricsText = currentLyrics;
+				lyricsController.lyricsID = currentLyricsId;
+				prevLrcItemId = currentLyricsId;
+			}
+		}
+	}
+	
+}
+
 #pragma mark Actions
 
 - (IBAction)playPrevious:(id)sender 
@@ -292,12 +321,16 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	prevLrcItemId = NSUIntegerMax;
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
-		lyricsController.lyricsText = @"Trying to download lyrics";
-		NSThread* timerThread = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; //Create a new thread
-		[timerThread start]; //start the thread
-		return;
+		lyricsController.statusText = @"Trying to download lyrics";
+		if (thread_) {
+			[thread_ cancel];
+			[thread_ release];
+		}
+		thread_ = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; 
+		[thread_ start]; //start the thread
 
 	} else {
+		//lyricsController.statusText = @"";
 		[self resetLRCPoll:desired_lrc];
 		[self startLRCTimer];
 		DeLog(@"Starting lyrics:..");	
@@ -321,14 +354,15 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		lrcPool = nil;
 	}
 	lrcPool = [[LrcTokensPool alloc] initWithFilePathAndParseLyrics:lrcFilePath];
+	lyricsController.lyricsPool = [lrcPool lyrics];
 }
 
 // Create and start the timer that triggers a refetch every few seconds
 - (void)startLRCTimer {
-
+	lyricsController.statusText = @"";
 	[self stopLRCTimer];
 	lrcTimer = [NSTimer scheduledTimerWithTimeInterval:kRefetchInterval target:self selector:@selector(lrcRoller:) userInfo:nil repeats:YES];
-	[lrcTimer retain];
+	//[lrcTimer retain];
 }
 
 //the thread starts by sending this message
@@ -357,7 +391,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	// end with timeout. this should might only at my home with 53.6kbps bandwith...
 	if ([giveUpDate timeIntervalSinceNow] < 0) {
 		NSString *timeoutError = @"Network Timeout:(";
-		[self performSelectorOnMainThread:@selector(setLrcWindowDisplay:) withObject:timeoutError waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:timeoutError waitUntilDone:NO];
 	}
 	
 	[thePool release];
@@ -371,6 +405,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
         lrcTimer = nil;
     }
 }
+
 
 - (void)_openLyrics
 {
@@ -402,17 +437,23 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	DeLog(@"insight timer");
 	NSUInteger currentLyricsId;
 	NSInteger currentPosition = [[iTunesController sharedInstance] playerPosition];
-	NSString *currentLyrics = [lrcPool getLyricsByTime:currentPosition lyricsID: &currentLyricsId];
+	//NSString *currentLyrics = 
+	[lrcPool getLyricsByTime:currentPosition lyricsID: &currentLyricsId];
 	if (prevLrcItemId != currentLyricsId) {
-		DeLog(@"new item.");
-		lyricsController.lyricsText = currentLyrics;
+		DeLog(@"timer update new item.");
+		//lyricsController.lyricsText = currentLyrics;
+		lyricsController.lyricsID = currentLyricsId;
 		prevLrcItemId = currentLyricsId;
 	}
 }
 
-- (void)setLrcWindowDisplay:(NSString*)lyrics
+- (void)setLrcWindowStatus:(NSString*)statusText
 {
-	lyricsController.lyricsText = lyrics;
+	
+	lyricsController.statusText = statusText;
+	// clear old pool
+	lyricsController.lyricsPool = nil;
+	
 }
 
 - (void)_openPreferences 

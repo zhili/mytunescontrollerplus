@@ -225,6 +225,15 @@ NSStringEncoding detectedEncodingForData(NSData *data)
 	return [attributes_ objectForKey:@"by"];
 }
 
+- (NSArray *)lyrics 
+{
+	NSMutableArray *mStr = [NSMutableArray array];
+	for (LyricItem *it in lyricPool_) {
+		[mStr addObject:[it lyrics]];
+	}
+	return mStr;
+}
+
 - (void)dealloc
 {
 	[attributes_ release];

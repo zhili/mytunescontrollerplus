@@ -27,17 +27,24 @@
 
 #import <Cocoa/Cocoa.h>
 #import "iTunes.h"
-#import "LrcStorage.h"
+//#import "LrcStorage.h"
 
 @interface LyricsWindowController : NSWindowController 
 {
 	iTunesTrack *track;
-	NSString *lyricsText;
-
+	NSString *statusText;
+	NSScrollView *scrollview;
+	NSTextView *lyricsTextView;
+	NSArray *lyricsPool;
+	NSUInteger lyricsID;
+	CGFloat lineHeight;
 }
 
 @property (nonatomic, readonly) NSColor *lyricsTextColor;
 @property (nonatomic, readonly) NSFont *lyricsFont;
 @property (nonatomic, readwrite, retain) iTunesTrack *track;
-@property (readwrite, copy) NSString *lyricsText;
+@property (readwrite, retain) NSString *statusText;
+@property (nonatomic, retain) NSArray *lyricsPool;
+@property (nonatomic, assign) NSUInteger lyricsID;
+
 @end

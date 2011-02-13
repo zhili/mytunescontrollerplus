@@ -303,11 +303,12 @@ static xmlSAXHandler gSAXHandler = {
                 self.error = [NSError errorWithDomain:NSXMLParserErrorDomain code:err userInfo:nil];
             }
         }
-		
-        // Clean up.
-        
-        htmlFreeParserCtxt(context);
+
     }
+	
+	// Clean up.
+	
+	htmlFreeParserCtxt(context);
 	self.characterBuffer = nil;
 }
 

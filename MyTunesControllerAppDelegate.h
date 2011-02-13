@@ -55,6 +55,7 @@
 	LRC_ENGINE lrcEngine;
 	NSUInteger prevLrcItemId;
 	BOOL enableNotification;
+	NSThread *thread_;
 }
 
 @property (assign) IBOutlet NSWindow *window;

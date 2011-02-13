@@ -19,6 +19,7 @@
 @property (nonatomic, readonly) NSString *artist;
 @property (nonatomic, readonly) NSString *album;
 @property (nonatomic, readonly) NSString *lrcauther;
+@property (nonatomic, readonly) NSArray *lyrics;
 
 - (id)initWithFilePath:(NSString *)path;
 - (BOOL)parseLyrics;
