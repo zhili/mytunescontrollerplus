@@ -142,15 +142,16 @@
 		[textStorage addAttribute:NSForegroundColorAttributeName
 							value:darkGray
 							range:area];
+		// set scroll value.
+		NSSize contentSize = [scrollview contentSize];
+		CGFloat locY = lyid * lineHeight - (ceil(contentSize.height / 2)-1) ; // lyid > 10 ? (lyid - 8 )*lineHeight : 0;
+		//DeLog(@"%f, %f", contentSize.width, contentSize.height);
+		// scroll to proper position.
+		[[scrollview documentView] scrollPoint:NSMakePoint(0, locY)];
+		// this keep playing sentence visiable.
+		[[scrollview documentView] scrollRangeToVisible:highLightArea];
 	}
-	// set scroll value.
-	NSSize contentSize = [scrollview contentSize];
-	CGFloat locY = lyid * lineHeight - (ceil(contentSize.height / 2)-1) ; // lyid > 10 ? (lyid - 8 )*lineHeight : 0;
-	//DeLog(@"%f, %f", contentSize.width, contentSize.height);
-	// scroll to proper position.
-	[[scrollview documentView] scrollPoint:NSMakePoint(0, locY)];
-	// this keep playing sentence visiable.
-	[[scrollview documentView] scrollRangeToVisible:highLightArea];
+
 }
 
 
