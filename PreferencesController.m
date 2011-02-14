@@ -68,19 +68,20 @@
 - (BOOL)isAppStartingOnLogin 
 {
 	LSSharedFileListRef loginListRef = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
+	BOOL startOnLogin = NO;
 	if (loginListRef) {
 		NSArray *loginItemsArray = (NSArray *)LSSharedFileListCopySnapshot(loginListRef, NULL);
 		NSURL *itemURL;
 		for (id itemRef in loginItemsArray) {		
 			if (LSSharedFileListItemResolve((LSSharedFileListItemRef)itemRef, 0, (CFURLRef *) &itemURL, NULL) == noErr) {
 				if ([[itemURL path] hasPrefix:[[NSBundle mainBundle] bundlePath]])
-					return YES;
+					startOnLogin = YES;
 			}
 		}
 		[loginItemsArray release];
 		CFRelease(loginListRef);
 	}
-	return NO;
+	return startOnLogin;
 }
 
 - (void)insertAppToLoginItems 
