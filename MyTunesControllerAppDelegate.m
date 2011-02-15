@@ -75,16 +75,19 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.LRCEngine"];
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.EnableNotification"];
 	[store release];
-	if (thread_) {
-		[thread_ cancel];
-		[thread_ release];
-	}
+//	if (thread_) {
+//		[thread_ cancel];
+//		[thread_ release];
+//	}
 	[self freeLRCPool];
 	[lyricsController release];
 	[statusItem release];
 	[controllerItem release];
-	if (enableNotification) {
+	if (enableNotification && notificationController) {
+		[notificationController setDelegate:nil];
+		[notificationController close];
 		[notificationController release];
+		notificationController = nil;
 	}
 	[preferencesController release];
 	[super dealloc];
@@ -322,12 +325,15 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
 		lyricsController.statusText = @"Trying to download lyrics";
-		if (thread_) {
-			[thread_ cancel];
-			[thread_ release];
-		}
-		thread_ = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; 
-		[thread_ start]; //start the thread
+//		if (thread_) {
+//			[thread_ cancel];
+//			[thread_ release];
+//		}
+		//thread_ = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; 
+		//[thread_ start]; //start the thread
+		[NSThread detachNewThreadSelector:@selector(startLRCDonwloadThread:)
+								 toTarget:self
+							   withObject:track];
 
 	} else {
 		//lyricsController.statusText = @"";
@@ -393,8 +399,9 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		NSString *timeoutError = @"Network Timeout:(";
 		[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:timeoutError waitUntilDone:NO];
 	}
+	[fetcher stop];
 	
-	[thePool release];
+	[thePool drain];
 }
 
 // Stop the timer; prevent future loads until startTimer is called again
