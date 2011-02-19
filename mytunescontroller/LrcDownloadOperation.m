@@ -6,7 +6,7 @@
 //  Copyright 2011 scut. All rights reserved.
 //
 
-#import "LrcDownloadDelegate.h"
+#import "LrcDownloadOperation.h"
 
 #include <fcntl.h>
 #include <unistd.h>

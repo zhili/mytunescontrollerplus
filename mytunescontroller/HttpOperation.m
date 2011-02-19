@@ -1,4 +1,4 @@
-#import "HttpConnectionDelegate.h"
+#import "HttpOperation.h"
 
 @interface HttpOperation ()
 

@@ -1,4 +1,4 @@
-#import "PageGetDelegate.h"
+#import "PageGetOperation.h"
 
 @implementation PageGetOperation
 
