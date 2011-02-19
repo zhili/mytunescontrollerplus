@@ -51,6 +51,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 - (void)stopLRCTimer;
 - (void)freeLRCPool;
 - (void)resetLRCPoll:(NSString*)lrcFilePath;
+- (void)setLrcWindowStatus:(NSString*)statusText;
 
 @end
 
@@ -143,8 +144,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	DeLog(@"%d", [NSThread isMainThread]);
 	if (error != nil) {
 		NSString *pageError = @"Network error or page not exit";
-		[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:pageError waitUntilDone:NO];
-		//lyricsController.lyricsText = @"Network error or page not exit";// [NSString stringWithFormat:@"%@:%@", [error domain], [error userInfo]];
+		[self setLrcWindowStatus:pageError];
 	}
 }
 
@@ -165,12 +165,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", artist, title];
 
 		[self resetLRCPoll:[store getLocalLRCFile:lrcFileName]];
-		// start the timer from main thread
-		[self performSelectorOnMainThread:@selector(startLRCTimer) withObject:nil waitUntilDone:NO];
-		// try start timer here. may roll back later.
-		//[self startLRCTimer];
-		//NSString *downloadOk = @"";
-		//[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:downloadOk waitUntilDone:NO];
+		[self startLRCTimer];
 		DeLog(@"Starting lyrics:..");
 	}
 }
@@ -242,6 +237,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 			[lrcTimer release];
 			lrcTimer = nil;
 		}
+		[fetcher release]; fetcher = nil;
 		[store release]; store = nil;
 		[lyricsController release]; lyricsController = nil;
 	}
@@ -325,16 +321,13 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
 		lyricsController.statusText = @"Trying to download lyrics";
-//		if (thread_) {
-//			[thread_ cancel];
-//			[thread_ release];
-//		}
-		//thread_ = [[NSThread alloc] initWithTarget:self selector:@selector(startLRCDonwloadThread:) object:track]; 
-		//[thread_ start]; //start the thread
-		[NSThread detachNewThreadSelector:@selector(startLRCDonwloadThread:)
-								 toTarget:self
-							   withObject:track];
-
+		fetcher.artist = [track artist];
+		fetcher.title = [track name];
+		[fetcher setDelegate:self];
+		
+		[fetcher setLrcEngine:lrcEngine];
+		[fetcher start];
+		
 	} else {
 		//lyricsController.statusText = @"";
 		[self resetLRCPoll:desired_lrc];
@@ -371,38 +364,6 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	//[lrcTimer retain];
 }
 
-//the thread starts by sending this message
--(void)startLRCDonwloadThread:(iTunesTrack*)track
-{
-	NSAutoreleasePool* thePool = [[NSAutoreleasePool alloc] init];
-	// create a new lrc fetcher, which do page download, parsing and
-	// download the actual lrc.
-	// there are two usefull delegates, one parse finish, the other donwload finish.
-	lrcFetcher *fetcher = [lrcFetcher fetcherWithArtist:[track artist]
-												  Title:[track name]
-											 LRCStorage:store];
-	[fetcher setDelegate:self];
-
-	[fetcher setLrcEngine:lrcEngine];
-	[fetcher start];
-	NSDate* giveUpDate = [NSDate dateWithTimeIntervalSinceNow:30];
-//
-//	// try to make this none-blocking?.....
-	NSDate *stopDate = [NSDate dateWithTimeIntervalSinceNow:0.001];
-//
-	do {
-		[[NSRunLoop currentRunLoop] runUntilDate:stopDate]; //runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-	} while (!fetcher.done && [giveUpDate timeIntervalSinceNow] > 0);
-	
-	// end with timeout. this should might only at my home with 53.6kbps bandwith...
-	if ([giveUpDate timeIntervalSinceNow] < 0) {
-		NSString *timeoutError = @"Network Timeout:(";
-		[self performSelectorOnMainThread:@selector(setLrcWindowStatus:) withObject:timeoutError waitUntilDone:NO];
-	}
-	[fetcher stop];
-	
-	[thePool drain];
-}
 
 // Stop the timer; prevent future loads until startTimer is called again
 - (void)stopLRCTimer {
@@ -425,10 +386,11 @@ const NSTimeInterval kRefetchInterval = 0.5;
 		store = [[LrcStorage alloc] init];
 	}
 	
+	if (fetcher == nil)
+		fetcher = [[lrcFetcher alloc] initWithLRCStorage:store];
 
 	iTunesTrack *track = [[iTunesController sharedInstance] currentTrack]; // playing track
 	
-
 	lyricsController.track = track;
 	[lyricsController showWindow:self];
 	

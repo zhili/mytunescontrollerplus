@@ -6,29 +6,18 @@
 //  Copyright 2011 scut. All rights reserved.
 //
 
-#import "LrcDownloadOperation.h"
+#import "LrcDownloadDelegate.h"
 
 #include <fcntl.h>
 #include <unistd.h>
 
-@interface LrcDownloadOperation ()
+@implementation LrcDownloadDelegate
 
-@property (copy, readwrite) NSString *lrcFilePath;
 
-@end
+@synthesize lrcDirPath = _lrcDirPath;
+@synthesize lrcFilePath = _lrcFilePath;
+@synthesize lrcName = _lrcName;
 
-@implementation LrcDownloadOperation
-
-- (id)initWithURL:(NSURL *)url lrcDirPath:(NSString *)lrcDirPath lrcFileName:(NSString*)name
-{
-    assert(lrcDirPath != nil);
-    self = [super initWithURL:url];
-    if (self != nil) {
-        self->_lrcDirPath = [lrcDirPath copy];
-		self->_lrcName = [name copy];
-    }
-    return self;
-}
 
 - (void)dealloc
 {
@@ -38,13 +27,8 @@
     [super dealloc];
 }
 
-@synthesize lrcDirPath = _lrcDirPath;
-@synthesize lrcFilePath = _lrcFilePath;
-
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-// An NSURLConnect delegate method.  We override this to set up a 
-// destination output stream for the incoming image data.
 {
     [super connection:connection didReceiveResponse:response];
     
@@ -57,11 +41,10 @@
 		int         fd;
 		
 		extension = @"lrc";
-		
 		// Repeatedly try to create a new file with that info, adding a 
 		// unique number if we get a conflict.
 		counter = 0;
-		filePath = [self.lrcDirPath stringByAppendingPathComponent:[_lrcName stringByAppendingPathExtension:extension]];
+		filePath = [_lrcDirPath stringByAppendingPathComponent:[_lrcName stringByAppendingPathExtension:extension]];
 		do {
 			int     err;
 			int     junk;

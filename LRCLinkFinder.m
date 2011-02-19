@@ -46,6 +46,7 @@ enum {
 @synthesize parsingLRC = _parsingLRC;
 @synthesize lrcEngine = _lrcEngine;
 @synthesize characterBuffer = _characterBuffer;
+@synthesize delegate;
 
 - (id)initWithData:(NSData *)data fromURL:(NSURL *)url
 {
@@ -310,6 +311,9 @@ static xmlSAXHandler gSAXHandler = {
 	
 	htmlFreeParserCtxt(context);
 	self.characterBuffer = nil;
+	if ([self.delegate respondsToSelector:@selector(parseDone:)]) {
+		[self.delegate parseDone:self];
+	} 
 }
 
 @end

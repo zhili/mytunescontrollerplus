@@ -42,14 +42,12 @@
 		C8E933C41200BB0B00F4D6BD /* LayerTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = C8E933C31200BB0B00F4D6BD /* LayerTextField.m */; };
 		C8FE898011FF7D6100290DEC /* iTunesController.m in Sources */ = {isa = PBXBuildFile; fileRef = C8FE897F11FF7D6100290DEC /* iTunesController.m */; };
 		D723855612FEB39C00FD9018 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = D723855512FEB39C00FD9018 /* dsa_pub.pem */; };
-		D744A24F12FC28A90056608A /* LrcDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24012FC28A90056608A /* LrcDownloadOperation.m */; };
+		D744A24F12FC28A90056608A /* LrcDownloadDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24012FC28A90056608A /* LrcDownloadDelegate.m */; };
 		D744A25012FC28A90056608A /* LRCFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24212FC28A90056608A /* LRCFetcher.m */; };
 		D744A25112FC28A90056608A /* LRCLinkFinder.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24412FC28A90056608A /* LRCLinkFinder.m */; };
 		D744A25212FC28A90056608A /* LrcStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24612FC28A90056608A /* LrcStorage.m */; };
-		D744A25312FC28A90056608A /* PageGetOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24812FC28A90056608A /* PageGetOperation.m */; };
-		D744A25412FC28A90056608A /* QHTTPOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24A12FC28A90056608A /* QHTTPOperation.m */; };
-		D744A25512FC28A90056608A /* QRunLoopOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24C12FC28A90056608A /* QRunLoopOperation.m */; };
-		D744A25612FC28A90056608A /* QWatchedOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24E12FC28A90056608A /* QWatchedOperationQueue.m */; };
+		D744A25312FC28A90056608A /* PageGetDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24812FC28A90056608A /* PageGetDelegate.m */; };
+		D744A25412FC28A90056608A /* HttpConnectionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24A12FC28A90056608A /* HttpConnectionDelegate.m */; };
 		D744A26C12FC2A910056608A /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D744A26B12FC2A910056608A /* libxml2.dylib */; };
 		D751530813029E8D0027EB96 /* LRCManagerController.m in Sources */ = {isa = PBXBuildFile; fileRef = D751530713029E8D0027EB96 /* LRCManagerController.m */; };
 		D751530A13029F7D0027EB96 /* LRCManagerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = D751530913029F7D0027EB96 /* LRCManagerWindow.xib */; };
@@ -133,22 +131,18 @@
 		C8FE897E11FF7D6100290DEC /* iTunesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iTunesController.h; sourceTree = "<group>"; };
 		C8FE897F11FF7D6100290DEC /* iTunesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iTunesController.m; sourceTree = "<group>"; };
 		D723855512FEB39C00FD9018 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
-		D744A23F12FC28A90056608A /* LrcDownloadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcDownloadOperation.h; sourceTree = "<group>"; };
-		D744A24012FC28A90056608A /* LrcDownloadOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcDownloadOperation.m; sourceTree = "<group>"; };
+		D744A23F12FC28A90056608A /* LrcDownloadDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcDownloadDelegate.h; sourceTree = "<group>"; };
+		D744A24012FC28A90056608A /* LrcDownloadDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcDownloadDelegate.m; sourceTree = "<group>"; };
 		D744A24112FC28A90056608A /* LRCFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LRCFetcher.h; sourceTree = "<group>"; };
 		D744A24212FC28A90056608A /* LRCFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LRCFetcher.m; sourceTree = "<group>"; };
 		D744A24312FC28A90056608A /* LRCLinkFinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LRCLinkFinder.h; sourceTree = "<group>"; };
 		D744A24412FC28A90056608A /* LRCLinkFinder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LRCLinkFinder.m; sourceTree = "<group>"; };
 		D744A24512FC28A90056608A /* LrcStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcStorage.h; sourceTree = "<group>"; };
 		D744A24612FC28A90056608A /* LrcStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcStorage.m; sourceTree = "<group>"; };
-		D744A24712FC28A90056608A /* PageGetOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageGetOperation.h; sourceTree = "<group>"; };
-		D744A24812FC28A90056608A /* PageGetOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageGetOperation.m; sourceTree = "<group>"; };
-		D744A24912FC28A90056608A /* QHTTPOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QHTTPOperation.h; sourceTree = "<group>"; };
-		D744A24A12FC28A90056608A /* QHTTPOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QHTTPOperation.m; sourceTree = "<group>"; };
-		D744A24B12FC28A90056608A /* QRunLoopOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRunLoopOperation.h; sourceTree = "<group>"; };
-		D744A24C12FC28A90056608A /* QRunLoopOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRunLoopOperation.m; sourceTree = "<group>"; };
-		D744A24D12FC28A90056608A /* QWatchedOperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QWatchedOperationQueue.h; sourceTree = "<group>"; };
-		D744A24E12FC28A90056608A /* QWatchedOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QWatchedOperationQueue.m; sourceTree = "<group>"; };
+		D744A24712FC28A90056608A /* PageGetDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageGetDelegate.h; sourceTree = "<group>"; };
+		D744A24812FC28A90056608A /* PageGetDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageGetDelegate.m; sourceTree = "<group>"; };
+		D744A24912FC28A90056608A /* HttpConnectionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpConnectionDelegate.h; sourceTree = "<group>"; };
+		D744A24A12FC28A90056608A /* HttpConnectionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpConnectionDelegate.m; sourceTree = "<group>"; };
 		D744A26B12FC2A910056608A /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		D751530613029E8D0027EB96 /* LRCManagerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LRCManagerController.h; sourceTree = "<group>"; };
 		D751530713029E8D0027EB96 /* LRCManagerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LRCManagerController.m; sourceTree = "<group>"; };
@@ -322,22 +316,18 @@
 		C874064B1244D7FE008F0DD4 /* Lyrics */ = {
 			isa = PBXGroup;
 			children = (
-				D744A23F12FC28A90056608A /* LrcDownloadOperation.h */,
-				D744A24012FC28A90056608A /* LrcDownloadOperation.m */,
 				D744A24112FC28A90056608A /* LRCFetcher.h */,
 				D744A24212FC28A90056608A /* LRCFetcher.m */,
 				D744A24312FC28A90056608A /* LRCLinkFinder.h */,
 				D744A24412FC28A90056608A /* LRCLinkFinder.m */,
 				D744A24512FC28A90056608A /* LrcStorage.h */,
 				D744A24612FC28A90056608A /* LrcStorage.m */,
-				D744A24712FC28A90056608A /* PageGetOperation.h */,
-				D744A24812FC28A90056608A /* PageGetOperation.m */,
-				D744A24912FC28A90056608A /* QHTTPOperation.h */,
-				D744A24A12FC28A90056608A /* QHTTPOperation.m */,
-				D744A24B12FC28A90056608A /* QRunLoopOperation.h */,
-				D744A24C12FC28A90056608A /* QRunLoopOperation.m */,
-				D744A24D12FC28A90056608A /* QWatchedOperationQueue.h */,
-				D744A24E12FC28A90056608A /* QWatchedOperationQueue.m */,
+				D744A24712FC28A90056608A /* PageGetDelegate.h */,
+				D744A24812FC28A90056608A /* PageGetDelegate.m */,
+				D744A23F12FC28A90056608A /* LrcDownloadDelegate.h */,
+				D744A24012FC28A90056608A /* LrcDownloadDelegate.m */,
+				D744A24912FC28A90056608A /* HttpConnectionDelegate.h */,
+				D744A24A12FC28A90056608A /* HttpConnectionDelegate.m */,
 				D7B503AC12F84C0A003112CD /* chardetect.h */,
 				D7B503B312F84C0A003112CD /* LrcToken.h */,
 				D7B503B412F84C0A003112CD /* LrcToken.m */,
@@ -469,14 +459,12 @@
 				D7B503BF12F84C0A003112CD /* LrcTokensPool.mm in Sources */,
 				D7B503C012F84C0A003112CD /* NSScanner+JSON.m in Sources */,
 				D7B503C112F84C0A003112CD /* NSString+URLArguments.m in Sources */,
-				D744A24F12FC28A90056608A /* LrcDownloadOperation.m in Sources */,
+				D744A24F12FC28A90056608A /* LrcDownloadDelegate.m in Sources */,
 				D744A25012FC28A90056608A /* LRCFetcher.m in Sources */,
 				D744A25112FC28A90056608A /* LRCLinkFinder.m in Sources */,
 				D744A25212FC28A90056608A /* LrcStorage.m in Sources */,
-				D744A25312FC28A90056608A /* PageGetOperation.m in Sources */,
-				D744A25412FC28A90056608A /* QHTTPOperation.m in Sources */,
-				D744A25512FC28A90056608A /* QRunLoopOperation.m in Sources */,
-				D744A25612FC28A90056608A /* QWatchedOperationQueue.m in Sources */,
+				D744A25312FC28A90056608A /* PageGetDelegate.m in Sources */,
+				D744A25412FC28A90056608A /* HttpConnectionDelegate.m in Sources */,
 				D751530813029E8D0027EB96 /* LRCManagerController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

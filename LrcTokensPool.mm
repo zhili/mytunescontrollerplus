@@ -32,8 +32,7 @@ NSStringEncoding detectedEncodingForData(NSData *data)
     ret = chardet_get_charset(chardetContext, charset, CHARDET_MAX_ENCODING_NAME);
 	
     chardet_destroy(chardetContext);
-	//NSLog(@"%d", strlen(charset));
-	//NSLog(@"%s", charset);
+
     if (ret != CHARDET_RESULT_OK || strlen(charset) == 0) // when file is no new line at end, charset' length would be Zero.
         return NSUTF8StringEncoding;
 	

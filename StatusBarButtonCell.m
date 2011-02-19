@@ -43,7 +43,7 @@
 	
 	// has image
 	if(self.image) {
-		//NSLog(@"%d", [[self.image representations]count]);
+
 		[self.image setFlipped:YES];
 		[self.image drawInRect:[self imageRectForBounds:cellFrame] 
 					  fromRect:NSZeroRect 

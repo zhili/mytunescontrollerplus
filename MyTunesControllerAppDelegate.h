@@ -56,6 +56,7 @@
 	NSUInteger prevLrcItemId;
 	BOOL enableNotification;
 	//NSThread *thread_;
+	lrcFetcher *fetcher;
 }
 
 @property (assign) IBOutlet NSWindow *window;

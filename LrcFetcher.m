@@ -1,7 +1,7 @@
 #import "LRCFetcher.h"
 #import "basictypes.h"
-#import "LrcDownloadOperation.h"
-#import "PageGetOperation.h"
+#import "LrcDownloadDelegate.h"
+#import "PageGetDelegate.h"
 #import "LRCLinkFinder.h"
 #import "NSString+URLArguments.h"
 #import "LrcStorage.h"
@@ -11,10 +11,15 @@
 #define LRC123 @"http://www.lrc123.com/?keyword=%@+%@&field=all"
 #define SOSO_QUERY_AT_TEMPLATE @"http://cgi.music.soso.com/fcgi-bin/m.q?w=%@+%@&source=1&t=7"
 
-@interface lrcFetcher ()
+// from gtm-http-fetcher.
+static const NSTimeInterval kGiveUpInterval = 30.0;
+
+@interface lrcFetcher () <QHTMLLinkFinderDelegate>
+
+
 @property (nonatomic, copy, readwrite) NSError *error;
-@property (nonatomic, retain, readonly ) QWatchedOperationQueue *queue;
-@property (nonatomic, retain, readonly ) NSMutableDictionary *foundImageURLToPathMap;
+@property (nonatomic, retain, readonly ) NSOperationQueue *queue;
+@property (nonatomic, retain, readonly ) NSMutableDictionary *foundLrcURLToPathMap;
 @property (nonatomic, assign, readwrite) NSUInteger runningOperationCount;
 
 - (void)startPageGet:(NSURL *)pageURL;
@@ -26,7 +31,7 @@
 @synthesize artist = _artist;
 @synthesize title = _title;
 @synthesize done = _done;
-@synthesize foundImageURLToPathMap = _foundImageURLToPathMap;
+@synthesize foundLrcURLToPathMap = _foundLrcURLToPathMap;
 @synthesize lrcDirPath = _lrcDirPath;
 @synthesize runningOperationCount = _runningOperationCount;
 @synthesize delegate = _delegate;
@@ -43,46 +48,52 @@
 		self->_title = [title copy];
 		self->_artist = [artist copy];
 		self->_lrcDirPath = [[store lrcStorePath] copy];
-		assert(self->_lrcDirPath != nil);
-		self->_foundImageURLToPathMap = [[NSMutableDictionary alloc] init];
-		assert(self->_foundImageURLToPathMap != nil);
+		self->_foundLrcURLToPathMap = [[NSMutableDictionary alloc] init];
 		_lrcStorage = [store retain];
 	}
 	return self;
 
 }
 
-- (void)dealloc
+- (id)initWithLRCStorage:(LrcStorage*)store
 {
+	if (self = [super init]) {
+		self->_lrcDirPath = [[store lrcStorePath] copy];
+		self->_foundLrcURLToPathMap = [[NSMutableDictionary alloc] init];
+		_lrcStorage = [store retain];
+	}
+	return self;
+}
+
+- (void)dealloc
+{	
 	[self->_lrcStorage release];
 	[self->_title release];
 	[self->_artist release];
-	[self->_foundImageURLToPathMap release];
+	[self->_foundLrcURLToPathMap release];
 	[self->_lrcDirPath release];
-	[self->_queue invalidate];
 	[self->_queue cancelAllOperations];
 	[self->_queue release];
 	[self->_error release];
 	[super dealloc];
 }
 
-- (QWatchedOperationQueue *)queue
+- (NSOperationQueue *)queue
 {
 	if (self->_queue == nil) {
-		self->_queue = [[QWatchedOperationQueue alloc] initWithTarget:self];
+		self->_queue = [[NSOperationQueue alloc] init];
 		assert(self->_queue != nil);
 	}
 	return self->_queue;
 }
 
 
-
-- (NSDictionary *)imageURLToPathMap
+- (NSDictionary *)lrcURLToPathMap
 // This getter returns a snapshot of the current fetcher state so that, 
 // if you call it before the fetcher is done, you don't get a mutable array 
 // that's still being mutated.
 {
-    return [[self.foundImageURLToPathMap copy] autorelease];
+    return [[self.foundLrcURLToPathMap copy] autorelease];
 }
 
 - (BOOL)start
@@ -127,98 +138,79 @@
 // An internal method called to stop the fetch and clean things up.
 {
     assert(error != nil);
-    [self.queue invalidate];
     [self.queue cancelAllOperations];
     self.error = error;
     self.done = YES;
 }
 
 - (void)stop
-// See comment in header.
 {
     [self stopWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
 }
 
 
-- (void)operationDidStart
-// Called when an operation has started to increment runningOperationCount. 
-{
-    self.runningOperationCount += 1;
-}
-
-- (void)operationDidFinish
-// Called when an operation has finished to decrement runningOperationCount 
-// and complete the whole fetch if it hits zero.
-{
-    assert(self.runningOperationCount != 0);
-    self.runningOperationCount -= 1;
-    if (self.runningOperationCount == 0) {
-        self.done = YES;
-    }    
-}
-
 - (void)startPageGet:(NSURL *)pageURL
 // Starts the operation to GET an HTML page.  Called for both the 
 // initial main page, and for any subsequently linked-to pages.
 {
-    PageGetOperation *  op;
-    
     assert([pageURL baseURL] == nil);       // must be an absolute URL
-    
-    op = [[[PageGetOperation alloc] initWithURL:pageURL] autorelease];
-    
-    [self.queue addOperation:op finishedAction:@selector(pageGetDone:)];
-    [self operationDidStart];
-    
+    id	context = nil;
+//    op = [[[PageGetOperation alloc] initWithURL:pageURL] autorelease];
+//    op.delegate = self;
+//    [self.queue addOperation:op];
+	PageGetDelegate* pageDelegate = [[[PageGetDelegate alloc] initWithTarget:self
+																	  action:@selector(PageGetResult:withContext:)
+																	 context:context] autorelease];
+
+	NSURLRequest *req = [NSURLRequest requestWithURL:pageURL
+										 cachePolicy:NSURLRequestReloadIgnoringCacheData
+									 timeoutInterval:kGiveUpInterval];
+
+	_conn = [NSURLConnection connectionWithRequest:req delegate:pageDelegate];
+	[_conn start];
     // ... continues in -pageGetDone:
 }
 
-- (void)pageGetDone:(PageGetOperation *)op
-// Called when the GET for an HTML page is done.  We start a LinkFinder 
-// operation to parse the HTML.
+- (void)PageGetResult:(id)result withContext:(id)context
 {
-    assert([op isKindOfClass:[PageGetOperation class]]);
-//    assert([NSThread isMainThread]);
-    
-    if (op.error != nil) {
+
+    assert([NSThread isMainThread]);
+    if ([result isKindOfClass:[NSError class]]) {
 		
         // An error getting the main page is fatal to the entire process; an error 
         // getting any subsequent pages is just logged.
-		[self stopWithError:op.error];
+		//[self stopWithError:op.error];
 		if ([self.delegate respondsToSelector:@selector(lrcPageLoadDidFinish:)]) {
-			[self.delegate lrcPageLoadDidFinish:op.error];
+			[self.delegate lrcPageLoadDidFinish:result];
 		} 
-		DeLog(@"Page not found:%@", op);
+		[self stopWithError:result];
+		DeLog(@"Page not found:%@", result);
 		
     } else {
 		DeLog(@"get page successfully");
         QHTMLLinkFinder* nextOp;
-		DeLog(@"%@", [op.lastResponse URL]);
+		;
+		DeLog(@"%@", [[result objectForKey:@"lastResponse"] URL]);
         // Don't use op.URL here, but rather [op.lastResponse URL] so that relatives 
         // URLs work in the face of redirection.
 		//DeLog(@"%@", op.responseBody);
-        nextOp = [[[QHTMLLinkFinder alloc] initWithData:op.responseBody fromURL:[op.lastResponse URL]] autorelease];
+        nextOp = [[[QHTMLLinkFinder alloc] initWithData:[result objectForKey:@"responseBody"] fromURL: [[result objectForKey:@"lastResponse"] URL]] autorelease];
         assert(nextOp != nil);
         
         nextOp.useRelaxedParsing = YES;
 		nextOp.lrcEngine = self.lrcEngine;
-        [self.queue addOperation:nextOp finishedAction:@selector(parseDone:)];
-        [self operationDidStart];
+		nextOp.delegate = self;
+        [self.queue addOperation:nextOp];
         
         // ... continues in -parseDone:
     }
     
-    [self operationDidFinish];
+ //   [self operationDidFinish];
 }
 
 - (void)parseDone:(QHTMLLinkFinder *)op
-// Called when the link finder operation is done.  We look at the links 
-// and start an appropriate number of page get and image download operations. 
 {
-
-#pragma unused(op)
     assert([op isKindOfClass:[QHTMLLinkFinder class]]);
-//    assert([NSThread isMainThread]);
 	
     /*if (op.error != nil) {
 			DeLog(@"parse error.%@", op.error);
@@ -240,23 +232,13 @@
             thisURLAbsolute = [thisURL absoluteURL];
             assert(thisURLAbsolute != nil);
 			DeLog(@"%@", thisURL);
-            if ([self.foundImageURLToPathMap objectForKey:thisURLAbsolute] != nil) {
+            if ([self.foundLrcURLToPathMap objectForKey:thisURLAbsolute] != nil) {
 				DeLog(@"duplicate");
             } else {
 				DeLog(@"start new download op from:%@",thisURLAbsolute);
-                LrcDownloadOperation *    downloadOperation;
-                
-                [self.foundImageURLToPathMap setObject:[NSNull null] forKey:thisURLAbsolute];
 				
-                downloadOperation = [[[LrcDownloadOperation alloc] initWithURL:thisURLAbsolute 
-																	lrcDirPath:self.lrcDirPath 
-																   lrcFileName:[NSString stringWithFormat:@"%@-%@", _artist, _title]] autorelease];
-                assert(downloadOperation != nil);
-				
-                [self.queue addOperation:downloadOperation finishedAction:@selector(downloadDone:)];
-                [self operationDidStart];
-                
-                // ... continues in -downloadDone:
+				[self performSelectorOnMainThread:@selector(httpDownloadStart:) withObject:thisURLAbsolute waitUntilDone:NO];
+
             }
 			// only use the first link temparaly.
         //}
@@ -275,35 +257,48 @@
 
     }
     
-    [self operationDidFinish];
+//    [self operationDidFinish];
+}
+- (void)httpDownloadStart:(NSURL*)thisURLAbsolute
+{
+	assert([NSThread isMainThread]);
+	LrcDownloadDelegate* downloadDelegate;
+
+	[self.foundLrcURLToPathMap setObject:[NSNull null] forKey:thisURLAbsolute];
+	id	context = nil;
+	DeLog(@"%@", self.lrcDirPath);
+	downloadDelegate = [[[LrcDownloadDelegate alloc] initWithTarget:self 
+																	 action:@selector(DownloadResult:withContext:) 
+																	context:context] autorelease];
+	
+	downloadDelegate.lrcDirPath = self.lrcDirPath ;
+	downloadDelegate.lrcName = [NSString stringWithFormat:@"%@-%@", _artist, _title];
+
+	//[_conn cancel];
+	assert(_conn != nil);
+	NSURLRequest *req = [NSURLRequest requestWithURL:thisURLAbsolute
+										 cachePolicy:NSURLRequestReloadIgnoringCacheData
+									 timeoutInterval:kGiveUpInterval];
+	
+	_conn = [NSURLConnection connectionWithRequest:req delegate:downloadDelegate];
+	[_conn start];
 }
 
-- (void)downloadDone:(LrcDownloadOperation *)op
-// Called when an image download operation is done.
+- (void)DownloadResult:(id)result withContext:(id)context
 {
 	#pragma unused(op)
-    assert([op isKindOfClass:[LrcDownloadOperation class]]);
-    //assert([NSThread isMainThread]);
+    assert([NSThread isMainThread]);
 	
-    // Replace the NSNull in the foundImageURLToPathMap with the path to the downloaded 
-    // file (on success) or the error.  Note that we use op.URL here, not [op.lastResponse URL], 
-    // because this stuff is keyed on the original URL, not the final URL after redirects.
-    
-    assert([[self.foundImageURLToPathMap objectForKey:op.URL] isEqual:[NSNull null]]);
-    if (op.error != nil) {
-       // [self.foundImageURLToPathMap setObject:op.error forKey:op.URL];
-        //[self logText:@"image download error" URL:op.URL depth:op.depth error:op.error];
+    if ([result isKindOfClass:[NSError class]]) {
+		DeLog(@"dl error");
+		[self stopWithError:result];
     } else {
-       // [self.foundImageURLToPathMap setObject:op.lrcFilePath forKey:op.URL];
 		[_lrcStorage addLRCFile:[NSString stringWithFormat:@"%@-%@", _artist, _title]];
-		DeLog(@"download file: %@ ok", op.lrcFilePath);
-		//[self lrcDownloadDidFinishWithArtist:_artist Title:_title];
+		DeLog(@"dl ok");
 		if ([self.delegate respondsToSelector:@selector(lrcDownloadDidFinishWithArtist:Title:)]) {
 			[self.delegate lrcDownloadDidFinishWithArtist:_artist Title:_title];
 		} 
     }
-    
-    [self operationDidFinish];
 }
 
 + (id)fetcherWithArtist:(NSString*)artist
