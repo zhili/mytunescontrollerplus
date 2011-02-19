@@ -11,18 +11,30 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-@implementation LrcDownloadDelegate
+@implementation LrcDownloadOperation
 
 
 @synthesize lrcDirPath = _lrcDirPath;
 @synthesize lrcFilePath = _lrcFilePath;
 @synthesize lrcName = _lrcName;
+@synthesize delegate = _delegate;
+
+- (id)initWithURL:(NSURL *)url lrcDirPath:(NSString *)lrcDirPath lrcFileName:(NSString*)name
+{
+	assert(lrcDirPath != nil);
+    self = [super initWithURL:url];
+    if (self != nil) {
+        _lrcDirPath = [lrcDirPath copy];
+		_lrcName = [name copy];
+    }
+    return self;
+}
 
 - (void)dealloc
 {
-	[self->_lrcName release];
-    [self->_lrcFilePath release];
-    [self->_lrcDirPath release];
+	[_lrcName release];
+    [_lrcFilePath release];
+    [_lrcDirPath release];
     [super dealloc];
 }
 
@@ -80,5 +92,22 @@
         }
     }
 }
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    [super connectionDidFinishLoading:connection];
+	
+	if ([self.delegate respondsToSelector:@selector(downloadDone:)]) {
+		[self.delegate downloadDone:self];
+	} 
+}
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    [super connection:connection didFailWithError:error];
+    if ([self.delegate respondsToSelector:@selector(downloadDone:)]) {
+		[self.delegate downloadDone:self];
+    }
+}
+
 
 @end

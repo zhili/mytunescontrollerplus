@@ -17,7 +17,6 @@
 	NSString *_title;
 	LrcStorage *_lrcStorage;
 	LRC_ENGINE _lrcEngine;
-	NSURLConnection* _conn;
 }
 
 - (id)initWithArtist:(NSString*)artist

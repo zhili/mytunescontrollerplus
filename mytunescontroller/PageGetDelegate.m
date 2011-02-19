@@ -1,15 +1,40 @@
 #import "PageGetDelegate.h"
 
-@implementation PageGetDelegate
+@implementation PageGetOperation
 
+@synthesize delegate = _delegate;
 
-- (id)initWithTarget:(id)target action:(SEL)action context:(id)context;
+- (id)initWithRequest:(NSURLRequest *)request
 {
-    self = [super initWithTarget:target action:action context:context];
-    if (self != nil) {
-        self.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+	if (self = [super initWithRequest:request]) {
+		self.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+	}
+	return self;
+}
+
+- (id)initWithURL:(NSURL *)url
+{
+	if (self = [super initWithURL:url]) {
+		self.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+	}
+	return self;
+}
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    [super connectionDidFinishLoading:connection];
+
+   if ([self.delegate respondsToSelector:@selector(pageGetDone:)]) {
+	   [self.delegate pageGetDone:self];
+   } 
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    [super connection:connection didFailWithError:error];
+    if ([self.delegate respondsToSelector:@selector(pageGetDone:)]) {
+		[self.delegate pageGetDone:self];
     }
-    return self;
 }
 
 @end

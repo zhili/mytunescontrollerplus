@@ -1,11 +1,20 @@
 #import "HttpConnectionDelegate.h"
 
+@protocol PageGetOperationDelegate;
 
-
-@interface PageGetDelegate : HttpConnectionDelegate
+@interface PageGetOperation : HttpOperation
 {
-
+    id<PageGetOperationDelegate> _delegate;
 }
 
-- (id)initWithTarget:(id)target action:(SEL)action context:(id)context;
+@property (nonatomic, assign, readwrite) id<PageGetOperationDelegate> delegate;
+- (id)initWithRequest:(NSURLRequest *)request;
+- (id)initWithURL:(NSURL *)url;
+
+@end
+
+@protocol PageGetOperationDelegate <NSObject>
+
+- (void)pageGetDone:(PageGetOperation *)op;
+
 @end

@@ -76,10 +76,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.LRCEngine"];
 	[[NSUserDefaultsController sharedUserDefaultsController] removeObserver:self forKeyPath:@"values.EnableNotification"];
 	[store release];
-//	if (thread_) {
-//		[thread_ cancel];
-//		[thread_ release];
-//	}
+
 	[self freeLRCPool];
 	[lyricsController release];
 	[statusItem release];
@@ -237,7 +234,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 			[lrcTimer release];
 			lrcTimer = nil;
 		}
-		[fetcher release]; fetcher = nil;
+//		[fetcher release]; fetcher = nil;
 		[store release]; store = nil;
 		[lyricsController release]; lyricsController = nil;
 	}
@@ -321,10 +318,11 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
 		lyricsController.statusText = @"Trying to download lyrics";
-		fetcher.artist = [track artist];
-		fetcher.title = [track name];
+
+		fetcher = [[lrcFetcher alloc] initWithArtist:[track artist]
+										  Title:[track name]
+									 LRCStorage:store];
 		[fetcher setDelegate:self];
-		
 		[fetcher setLrcEngine:lrcEngine];
 		[fetcher start];
 		
@@ -385,9 +383,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	if ( store == nil ) {
 		store = [[LrcStorage alloc] init];
 	}
-	
-	if (fetcher == nil)
-		fetcher = [[lrcFetcher alloc] initWithLRCStorage:store];
+
 
 	iTunesTrack *track = [[iTunesController sharedInstance] currentTrack]; // playing track
 	

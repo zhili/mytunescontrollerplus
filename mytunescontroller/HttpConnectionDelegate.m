@@ -1,37 +1,42 @@
 #import "HttpConnectionDelegate.h"
 
-@interface HttpConnectionDelegate ()
+@interface HttpOperation ()
 
 // Read/write versions of public properties
-@property (copy,   readwrite) NSURLRequest *lastRequest;
-@property (copy,   readwrite) NSHTTPURLResponse *lastResponse;
+@property (copy, readwrite) NSURLRequest *lastRequest;
+@property (copy, readwrite) NSHTTPURLResponse *lastResponse;
 // Internal properties
+@property (retain, readwrite) NSURLConnection *connection;
 @property (assign, readwrite) BOOL firstData;
 @property (retain, readwrite) NSMutableData *dataAccumulator;
 
+// Internal methods.
+- (void)finish;
+- (void)start;
+
 @end
 
-@implementation HttpConnectionDelegate
+@implementation HttpOperation
 
 @synthesize isExecuting = _isExecuting;
 @synthesize isFinished = _isFinished;
 @synthesize error = _error;
-@synthesize lastRequest     = _lastRequest;
-@synthesize lastResponse    = _lastResponse;
-@synthesize responseBody    = _responseBody;
-@synthesize firstData       = _firstData;
+@synthesize lastRequest = _lastRequest;
+@synthesize lastResponse = _lastResponse;
+@synthesize responseBody = _responseBody;
+@synthesize firstData = _firstData;
 @synthesize dataAccumulator = _dataAccumulator;
+@synthesize connection = _connection;
 @synthesize acceptableStatusCodes = _acceptableStatusCodes;
+@synthesize request = _request;
 
 #pragma mark * Initialise and finalise
-- (id)initWithTarget:(id)target action:(SEL)action context:(id)context
+- (id)initWithRequest:(NSURLRequest *)request;
 {
 	
 	if (self = [super init])
 	{
-		_target	= [target retain];
-		_action	= action;
-		_context	= [context retain];
+        _request = [request copy];
 #if TARGET_OS_EMBEDDED || TARGET_IPHONE_SIMULATOR
 		static const NSUInteger kPlatformReductionFactor = 4;
 #else
@@ -44,11 +49,15 @@
 	return self;
 }
 
+- (id)initWithURL:(NSURL *)url
+{
+    return [self initWithRequest:[NSURLRequest requestWithURL:url]];
+}
+
 - (void)dealloc
 {
+    [_request release];
 	[_error release];
-	[_target release];
-	[_context release];
     [_acceptableStatusCodes release];
     [_acceptableContentTypes release];
     [_responseOutputStream release];
@@ -60,17 +69,6 @@
 }
 
 #pragma mark * Properties
-
-// We write our own settings for many properties because we want to bounce 
-// sets that occur in the wrong state.  And, given that we've written the 
-// setter anyway, we also avoid KVO notifications when the value doesn't change.
-
-
-
-+ (BOOL)automaticallyNotifiesObserversOfAcceptableStatusCodes
-{
-    return NO;
-}
 
 - (void)setAcceptableStatusCodes:(NSIndexSet *)newValue
 {
@@ -84,11 +82,6 @@
 
 @synthesize acceptableContentTypes = _acceptableContentTypes;
 
-+ (BOOL)automaticallyNotifiesObserversOfAcceptableContentTypes
-{
-    return NO;
-}
-
 - (void)setAcceptableContentTypes:(NSSet *)newValue
 {
 	if (newValue != self->_acceptableContentTypes) {
@@ -100,11 +93,6 @@
 }
 
 @synthesize responseOutputStream = _responseOutputStream;
-
-+ (BOOL)automaticallyNotifiesObserversOfResponseOutputStream
-{
-    return NO;
-}
 
 - (void)setResponseOutputStream:(NSOutputStream *)newValue
 {
@@ -122,11 +110,6 @@
 
 @synthesize defaultResponseSize   = _defaultResponseSize;
 
-+ (BOOL)automaticallyNotifiesObserversOfDefaultResponseSize
-{
-    return NO;
-}
-
 - (void)setDefaultResponseSize:(NSUInteger)newValue
 {
     if (self.dataAccumulator != nil) {
@@ -142,11 +125,6 @@
 
 @synthesize maximumResponseSize = _maximumResponseSize;
 
-+ (BOOL)automaticallyNotifiesObserversOfMaximumResponseSize
-{
-    return NO;
-}
-
 - (void)setMaximumResponseSize:(NSUInteger)newValue
 {
     if (self.dataAccumulator != nil) {
@@ -159,8 +137,6 @@
         }
     }
 }
-
-
 
 - (BOOL)isStatusCodeAcceptable
 {
@@ -188,24 +164,64 @@
     return (self.acceptableContentTypes == nil) || ((contentType != nil) && [self.acceptableContentTypes containsObject:contentType]);
 }
 
+- (NSURL *)URL
+{
+    return [self.request URL];
+}
 
+- (void)start
+{
+	if (![NSThread isMainThread]) {
+		[self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
+		return;
+	}
+	[self willChangeValueForKey:@"isExecuting"];
+	_isExecuting = YES;
+	[self didChangeValueForKey:@"isExecuting"];
+
+	// init a connection, specially the connection retain it's delegete.
+	NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
+	self.connection = conn;
+	NSLog(@"init conn retain count: %d", [conn retainCount]);
+	[conn release];
+	if (self.connection == nil)
+		[self finish];
+
+}
+
+- (void)finish
+{
+    [self.connection cancel];
+	[self.connection release];
+	NSLog(@"conn retain count: %d", [self.connection retainCount]);
+    //self.connection = nil;
+
+    if (self.responseOutputStream != nil) {
+        [self.responseOutputStream close];
+    }
+    [self willChangeValueForKey:@"isExecuting"];
+	_isExecuting = NO;
+    [self didChangeValueForKey:@"isExecuting"];
+    [self willChangeValueForKey:@"isFinished"];
+	_isFinished = YES;
+    [self didChangeValueForKey:@"isFinished"];
+}
 
 #pragma mark * NSURLConnection delegate callbacks
 
 - (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)response
 {
     assert( (response == nil) || [response isKindOfClass:[NSHTTPURLResponse class]] );
-	
+	//assert(connection == self.connection);
     self.lastRequest  = request;
     self.lastResponse = (NSHTTPURLResponse *) response;
     return request;
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-
-    assert([response isKindOfClass:[NSHTTPURLResponse class]]);
-	
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response 
+{ 
+	assert([response isKindOfClass:[NSHTTPURLResponse class]]);
+    //assert(connection == self.connection);	
     self.lastResponse = (NSHTTPURLResponse *)response;
 }
 
@@ -213,6 +229,7 @@
 {
     BOOL    success;
     assert(data != nil);
+    //assert(connection == self.connection);
     
     // If we don't yet have a destination for the data, calculate one.  Note that, even 
     // if there is an output stream, we don't use it for error responses.
@@ -233,7 +250,7 @@
             if (length <= (long long) self.maximumResponseSize) {
                 self.dataAccumulator = [NSMutableData dataWithCapacity:(NSUInteger)length];
             } else {
-                _error = [NSError errorWithDomain:HttpConnectionDelegateErrorDomain code:httpConnectionDelegateErrorResponseTooLarge userInfo:nil];
+                _error = [NSError errorWithDomain:HttpErrorOperationDomain code:httpOperationErrorResponseTooLarge userInfo:nil];
                 success = NO;
             }
         }
@@ -257,7 +274,7 @@
             if ( ([self.dataAccumulator length] + [data length]) <= self.maximumResponseSize ) {
                 [self.dataAccumulator appendData:data];
             } else {
-				_error = [NSError errorWithDomain:HttpConnectionDelegateErrorDomain code:httpConnectionDelegateErrorResponseTooLarge userInfo:nil];
+				_error = [NSError errorWithDomain:HttpErrorOperationDomain code:httpOperationErrorResponseTooLarge userInfo:nil];
             }
         } else {
             NSUInteger      dataOffset;
@@ -280,7 +297,7 @@
                 if (bytesWritten <= 0) {
                     error = [self.responseOutputStream streamError];
                     if (error == nil) {
-                        error = [NSError errorWithDomain:HttpConnectionDelegateErrorDomain code:httpConnectionDelegateErrorOnOutputStream userInfo:nil];
+                        error = [NSError errorWithDomain:HttpErrorOperationDomain code:httpOperationErrorOnOutputStream userInfo:nil];
                     }
                     break;
                 } else {
@@ -298,32 +315,31 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     assert(self.lastResponse != nil);
-	
+    //assert(connection == self.connection);	
     // Swap the data accumulator over to the response data so that we don't trigger a copy.
     assert(self->_responseBody == nil);
 	
     self->_responseBody = self->_dataAccumulator;
     self->_dataAccumulator = nil;
     
-    if ( ! self.isStatusCodeAcceptable ) {
-        _error = [NSError errorWithDomain:HttpConnectionDelegateErrorDomain code:self.lastResponse.statusCode userInfo:nil];
-    } else if( ! self.isContentTypeAcceptable ) {
-        _error = [NSError errorWithDomain:HttpConnectionDelegateErrorDomain code:httpConnectionDelegateErrorBadContentType userInfo:nil];
-    } else {
-		
-	}
-	[_target performSelector:_action
-				 withObject:[NSDictionary dictionaryWithObjectsAndKeys:_lastResponse,@"lastResponse",_responseBody, @"responseBody",nil]
-				 withObject:_context];
+    if ( !self.isStatusCodeAcceptable ) {
+        _error = [NSError errorWithDomain:HttpErrorOperationDomain code:self.lastResponse.statusCode userInfo:nil];
+    } 
+    if( !self.isContentTypeAcceptable ) {
+        _error = [NSError errorWithDomain:HttpErrorOperationDomain code:httpOperationErrorBadContentType userInfo:nil];
+    }
+
+    [self finish];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
+    assert(connection == self.connection);
     assert(error != nil);
 	_error = [error copy];
-	[_target performSelector:_action withObject:_error withObject:_context];
+    [self finish];
 }
 
 @end
 
-NSString *HttpConnectionDelegateErrorDomain = @"HttpConnectionDelegateErrorDomain";
+NSString *HttpErrorOperationDomain = @"HttpErrorOperationErrorDomain";
