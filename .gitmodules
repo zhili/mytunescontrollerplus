@@ -1,0 +1,3 @@
+[submodule "UniversalDetector"]
+	path = UniversalDetector
+	url = git://github.com/JanX2/UniversalDetector.git
