@@ -26,8 +26,6 @@
 		C82BB73710EE3F7000B24464 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C82BB73610EE3F7000B24464 /* CoreServices.framework */; };
 		C83BBB7910FBA08000595F2D /* COPYING.txt in Resources */ = {isa = PBXBuildFile; fileRef = C83BBB7810FBA08000595F2D /* COPYING.txt */; };
 		C83E393D121450C300708ADE /* blank.png in Resources */ = {isa = PBXBuildFile; fileRef = C83E393C121450C300708ADE /* blank.png */; };
-		C85D36F81139933C006FEE88 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C85D36F71139933C006FEE88 /* Sparkle.framework */; };
-		C85D371A11399390006FEE88 /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C85D36F71139933C006FEE88 /* Sparkle.framework */; };
 		C87406481244D7D0008F0DD4 /* LyricsWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = C87406471244D7D0008F0DD4 /* LyricsWindow.xib */; };
 		C874064E1244D81F008F0DD4 /* LyricsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = C874064D1244D81F008F0DD4 /* LyricsWindowController.m */; };
 		C89FC95510F944970093B4A6 /* next.png in Resources */ = {isa = PBXBuildFile; fileRef = C89FC95110F944970093B4A6 /* next.png */; };
@@ -49,6 +47,8 @@
 		D744A25312FC28A90056608A /* PageGetDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24812FC28A90056608A /* PageGetDelegate.m */; };
 		D744A25412FC28A90056608A /* HttpConnectionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D744A24A12FC28A90056608A /* HttpConnectionDelegate.m */; };
 		D744A26C12FC2A910056608A /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D744A26B12FC2A910056608A /* libxml2.dylib */; };
+		D748B8EE130FB341008E3DB7 /* UniversalDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D748B8ED130FB341008E3DB7 /* UniversalDetector.framework */; };
+		D748B8FF130FB55F008E3DB7 /* UniversalDetector.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D748B8ED130FB341008E3DB7 /* UniversalDetector.framework */; };
 		D751530813029E8D0027EB96 /* LRCManagerController.m in Sources */ = {isa = PBXBuildFile; fileRef = D751530713029E8D0027EB96 /* LRCManagerController.m */; };
 		D751530A13029F7D0027EB96 /* LRCManagerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = D751530913029F7D0027EB96 /* LRCManagerWindow.xib */; };
 		D76D451912EAD0CD007C733D /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D76D451812EAD0CD007C733D /* Sparkle.framework */; };
@@ -58,7 +58,6 @@
 		D7B503BF12F84C0A003112CD /* LrcTokensPool.mm in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B612F84C0A003112CD /* LrcTokensPool.mm */; };
 		D7B503C012F84C0A003112CD /* NSScanner+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B812F84C0A003112CD /* NSScanner+JSON.m */; };
 		D7B503C112F84C0A003112CD /* NSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503BA12F84C0A003112CD /* NSString+URLArguments.m */; };
-		D7B503CE12F84C0A003112CD /* chardetect.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D7B503CD12F84C0A003112CD /* chardetect.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -68,7 +67,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				C85D371A11399390006FEE88 /* Sparkle.framework in CopyFiles */,
+				D748B8FF130FB55F008E3DB7 /* UniversalDetector.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,7 +107,6 @@
 		C82BB73610EE3F7000B24464 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		C83BBB7810FBA08000595F2D /* COPYING.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COPYING.txt; sourceTree = "<group>"; };
 		C83E393C121450C300708ADE /* blank.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blank.png; sourceTree = "<group>"; };
-		C85D36F71139933C006FEE88 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		C87406471244D7D0008F0DD4 /* LyricsWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LyricsWindow.xib; sourceTree = "<group>"; };
 		C874064C1244D81F008F0DD4 /* LyricsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LyricsWindowController.h; sourceTree = "<group>"; };
 		C874064D1244D81F008F0DD4 /* LyricsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LyricsWindowController.m; sourceTree = "<group>"; };
@@ -144,13 +142,13 @@
 		D744A24912FC28A90056608A /* HttpConnectionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpConnectionDelegate.h; sourceTree = "<group>"; };
 		D744A24A12FC28A90056608A /* HttpConnectionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HttpConnectionDelegate.m; sourceTree = "<group>"; };
 		D744A26B12FC2A910056608A /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		D748B8ED130FB341008E3DB7 /* UniversalDetector.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniversalDetector.framework; path = /Users/zhilihu/code/mytunescontrollerplus/UniversalDetector/build/Release/UniversalDetector.framework; sourceTree = "<absolute>"; };
 		D751530613029E8D0027EB96 /* LRCManagerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LRCManagerController.h; sourceTree = "<group>"; };
 		D751530713029E8D0027EB96 /* LRCManagerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LRCManagerController.m; sourceTree = "<group>"; };
 		D751530913029F7D0027EB96 /* LRCManagerWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LRCManagerWindow.xib; sourceTree = "<group>"; };
 		D76D451812EAD0CD007C733D /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
 		D7A30BC812FEF7BB0032F578 /* status_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = status_icon.png; sourceTree = "<group>"; };
 		D7A30BE712FEF8350032F578 /* app_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = app_icon.icns; sourceTree = "<group>"; };
-		D7B503AC12F84C0A003112CD /* chardetect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chardetect.h; sourceTree = "<group>"; };
 		D7B503B312F84C0A003112CD /* LrcToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcToken.h; sourceTree = "<group>"; };
 		D7B503B412F84C0A003112CD /* LrcToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcToken.m; sourceTree = "<group>"; };
 		D7B503B512F84C0A003112CD /* LrcTokensPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcTokensPool.h; sourceTree = "<group>"; };
@@ -159,7 +157,6 @@
 		D7B503B812F84C0A003112CD /* NSScanner+JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScanner+JSON.m"; sourceTree = "<group>"; };
 		D7B503B912F84C0A003112CD /* NSString+URLArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+URLArguments.h"; sourceTree = "<group>"; };
 		D7B503BA12F84C0A003112CD /* NSString+URLArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+URLArguments.m"; sourceTree = "<group>"; };
-		D7B503CD12F84C0A003112CD /* chardetect.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = chardetect.a; sourceTree = "<group>"; };
 		D7B53FD712FE8F25009C311B /* basictypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basictypes.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -172,10 +169,9 @@
 				C8214EE610E6AE8B008D012C /* ScriptingBridge.framework in Frameworks */,
 				C8214EEA10E6AE97008D012C /* QuartzCore.framework in Frameworks */,
 				C82BB73710EE3F7000B24464 /* CoreServices.framework in Frameworks */,
-				C85D36F81139933C006FEE88 /* Sparkle.framework in Frameworks */,
 				D76D451912EAD0CD007C733D /* Sparkle.framework in Frameworks */,
-				D7B503CE12F84C0A003112CD /* chardetect.a in Frameworks */,
 				D744A26C12FC2A910056608A /* libxml2.dylib in Frameworks */,
+				D748B8EE130FB341008E3DB7 /* UniversalDetector.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,13 +205,12 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D7B503CD12F84C0A003112CD /* chardetect.a */,
 				D76D451812EAD0CD007C733D /* Sparkle.framework */,
-				C85D36F71139933C006FEE88 /* Sparkle.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				C8214EE510E6AE8B008D012C /* ScriptingBridge.framework */,
 				C8214EE910E6AE97008D012C /* QuartzCore.framework */,
 				C82BB73610EE3F7000B24464 /* CoreServices.framework */,
+				D748B8ED130FB341008E3DB7 /* UniversalDetector.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -328,7 +323,6 @@
 				D744A24012FC28A90056608A /* LrcDownloadDelegate.m */,
 				D744A24912FC28A90056608A /* HttpConnectionDelegate.h */,
 				D744A24A12FC28A90056608A /* HttpConnectionDelegate.m */,
-				D7B503AC12F84C0A003112CD /* chardetect.h */,
 				D7B503B312F84C0A003112CD /* LrcToken.h */,
 				D7B503B412F84C0A003112CD /* LrcToken.m */,
 				D7B503B512F84C0A003112CD /* LrcTokensPool.h */,
@@ -515,6 +509,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../UniversalDetector/build/Release\"",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -542,6 +537,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../UniversalDetector/build/Release\"",
 				);
 				GCC_ENABLE_OBJC_GC = unsupported;
 				GCC_MODEL_TUNING = G5;

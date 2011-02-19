@@ -7,53 +7,13 @@
 //
 
 #import "LrcTokensPool.h"
-#import "chardetect.h"
 #import "LrcToken.h"
 #import "NSScanner+JSON.h"
-
-#define BUFSIZE	4096
-
-
-NSStringEncoding detectedEncodingForData(NSData *data)
-{
-    chardet_t chardetContext;
-    char      charset[CHARDET_MAX_ENCODING_NAME];
-    int       ret;
-	
-    CFStringEncoding cfenc;
-    CFStringRef      charsetStr;
-	
-    chardet_create(&chardetContext);
-    //chardet_reset(chardetContext);
-    chardet_handle_data(chardetContext, (const char *) [data bytes],
-                        [data length] > BUFSIZE ? BUFSIZE : [data length]);
-    chardet_data_end(chardetContext);
-	
-    ret = chardet_get_charset(chardetContext, charset, CHARDET_MAX_ENCODING_NAME);
-	
-    chardet_destroy(chardetContext);
-
-    if (ret != CHARDET_RESULT_OK || strlen(charset) == 0) // when file is no new line at end, charset' length would be Zero.
-        return NSUTF8StringEncoding;
-	
-    charsetStr = CFStringCreateWithCString(NULL, charset, kCFStringEncodingUTF8); // create cf string from c compatable string(char*)
-    cfenc = CFStringConvertIANACharSetNameToEncoding(charsetStr); // convert the encoding string name to a encoding enum type.
-    CFRelease(charsetStr);
-
-	
-    return CFStringConvertEncodingToNSStringEncoding(cfenc); // core fundation(cf) encoding string to ns core data encoding string
-}
+#import <UniversalDetector/UniversalDetector.h>
 
 
 @implementation LrcTokensPool
 
-//- (id)init
-//{
-//	if (self = [super init]) {
-//		
-//	}
-//	return self
-//}
 
 - (id)initWithFilePath:(NSString*)path
 {
@@ -61,6 +21,7 @@ NSStringEncoding detectedEncodingForData(NSData *data)
 		lyricPool_ = [[NSMutableArray array] retain];
 		attributes_ =[[NSMutableDictionary alloc] init];
 		path_ = [path copy];
+		detector_ = [[UniversalDetector alloc] init];
 	}
 	return self;
 }
@@ -116,10 +77,13 @@ NSStringEncoding detectedEncodingForData(NSData *data)
 {
 	NSString *contents;
 	NSData *data = [[NSFileManager defaultManager] contentsAtPath:path_];
-	
+
+	[detector_ reset];
+	[detector_ analyzeData:data];
+	NSStringEncoding enc = [detector_ encoding];
 	contents = [[NSString alloc] initWithData: data
-									 encoding: detectedEncodingForData(data)];
-	
+									 encoding: enc];
+
 
 	NSArray *lines = [contents componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
 	
@@ -235,6 +199,7 @@ NSStringEncoding detectedEncodingForData(NSData *data)
 
 - (void)dealloc
 {
+	[detector_ release];
 	[attributes_ release];
 	[lyricPool_ release];
 	[path_ release];

@@ -8,11 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+@class UniversalDetector;
 
 @interface LrcTokensPool : NSObject {
 	NSString *path_;
 	NSMutableArray *lyricPool_;
 	NSMutableDictionary *attributes_;
+	UniversalDetector *detector_; 
 }
 
 @property (nonatomic, readonly) NSString *title;
