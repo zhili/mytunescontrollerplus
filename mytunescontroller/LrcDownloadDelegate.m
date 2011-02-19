@@ -18,7 +18,6 @@
 @synthesize lrcFilePath = _lrcFilePath;
 @synthesize lrcName = _lrcName;
 
-
 - (void)dealloc
 {
 	[self->_lrcName release];

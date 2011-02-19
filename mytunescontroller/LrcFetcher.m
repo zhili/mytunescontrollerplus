@@ -135,7 +135,6 @@ static const NSTimeInterval kGiveUpInterval = 30.0;
 @synthesize error = _error;
 
 - (void)stopWithError:(NSError *)error
-// An internal method called to stop the fetch and clean things up.
 {
     assert(error != nil);
     [self.queue cancelAllOperations];
@@ -273,7 +272,6 @@ static const NSTimeInterval kGiveUpInterval = 30.0;
 	
 	downloadDelegate.lrcDirPath = self.lrcDirPath ;
 	downloadDelegate.lrcName = [NSString stringWithFormat:@"%@-%@", _artist, _title];
-
 	//[_conn cancel];
 	assert(_conn != nil);
 	NSURLRequest *req = [NSURLRequest requestWithURL:thisURLAbsolute
