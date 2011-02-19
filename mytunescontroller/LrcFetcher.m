@@ -18,7 +18,7 @@ static const NSTimeInterval kGiveUpInterval = 30.0;
 
 
 @property (nonatomic, copy, readwrite) NSError *error;
-@property (nonatomic, retain, readonly ) NSOperationQueue *queue;
+@property (nonatomic, retain, readonly) NSOperationQueue *queue;
 @property (nonatomic, retain, readonly ) NSMutableDictionary *foundLrcURLToPathMap;
 @property (nonatomic, assign, readwrite) NSUInteger runningOperationCount;
 
@@ -80,11 +80,11 @@ static const NSTimeInterval kGiveUpInterval = 30.0;
 
 - (NSOperationQueue *)queue
 {
-	if (self->_queue == nil) {
-		self->_queue = [[NSOperationQueue alloc] init];
-		assert(self->_queue != nil);
+	if (_queue == nil) {
+		_queue = [[NSOperationQueue alloc] init];
+		assert(_queue != nil);
 	}
-	return self->_queue;
+	return _queue;
 }
 
 
@@ -157,6 +157,7 @@ static const NSTimeInterval kGiveUpInterval = 30.0;
     [self.queue addOperation:op];
     // ... continues in -pageGetDone:
 }
+
 - (void)pageGetDone:(PageGetOperation *)op
 {
     assert([NSThread isMainThread]);

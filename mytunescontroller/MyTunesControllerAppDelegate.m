@@ -113,6 +113,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	[[iTunesController sharedInstance] setDelegate:self];
 	[self _setupStatusItem];
 	[self _updateStatusItemButtons];
+	fetcher = nil;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context 
@@ -234,7 +235,12 @@ const NSTimeInterval kRefetchInterval = 0.5;
 			[lrcTimer release];
 			lrcTimer = nil;
 		}
-//		[fetcher release]; fetcher = nil;
+		if (fetcher != nil) {
+			[fetcher stop];
+			[fetcher release]; 
+			fetcher = nil;
+		}
+//		
 		[store release]; store = nil;
 		[lyricsController release]; lyricsController = nil;
 	}
@@ -318,6 +324,11 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	desired_lrc = [store getLocalLRCFile:lrcFileName];
 	if ([desired_lrc length] <= 0) {
 		lyricsController.statusText = @"Trying to download lyrics";
+		if (fetcher != nil) {
+			[fetcher stop];
+			[fetcher release];
+			fetcher = nil;
+		}
 
 		fetcher = [[lrcFetcher alloc] initWithArtist:[track artist]
 										  Title:[track name]
@@ -390,7 +401,8 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	lyricsController.track = track;
 	[lyricsController showWindow:self];
 	
-	if (track != nil && [[iTunesController sharedInstance] isPlaying]) // this could be nil when itunes is not running.
+	if (track != nil && [[iTunesController sharedInstance] isPlaying]) 
+		// this could be nil when itunes is not running.
 		[self setLyricsForTrack:track];
 	
 	

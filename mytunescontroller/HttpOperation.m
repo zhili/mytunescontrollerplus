@@ -175,15 +175,30 @@
 		[self performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
 		return;
 	}
+	
+	// Immediately end if cancelled.
+	if ([self isCancelled]) {
+		[self willChangeValueForKey:@"isExecuting"];
+        _isExecuting = NO;
+		[self didChangeValueForKey:@"isExecuting"];
+		[self willChangeValueForKey:@"isFinished"];
+        _isFinished = YES;
+		[self didChangeValueForKey:@"isFinished"];
+		return;
+    }
+	
 	[self willChangeValueForKey:@"isExecuting"];
 	_isExecuting = YES;
 	[self didChangeValueForKey:@"isExecuting"];
+	[self willChangeValueForKey:@"isFinished"];
+	_isFinished = NO;
+    [self didChangeValueForKey:@"isFinished"];
 
 	// init a connection, specially the connection retain it's delegete.
-	NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
-	self.connection = conn;
-	NSLog(@"init conn retain count: %d", [conn retainCount]);
-	[conn release];
+	//NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
+	self.connection = [[[NSURLConnection alloc] initWithRequest:self.request delegate:self] autorelease];
+
+	//NSLog(@"init conn retain count: %d", self.connection);
 	if (self.connection == nil)
 		[self finish];
 
@@ -192,9 +207,8 @@
 - (void)finish
 {
     [self.connection cancel];
-	[self.connection release];
-	NSLog(@"conn retain count: %d", [self.connection retainCount]);
-    //self.connection = nil;
+//	[self.connection release];
+    self.connection = nil;
 
     if (self.responseOutputStream != nil) {
         [self.responseOutputStream close];

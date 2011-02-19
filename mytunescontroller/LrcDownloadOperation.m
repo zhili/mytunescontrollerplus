@@ -97,14 +97,14 @@
 {
     [super connectionDidFinishLoading:connection];
 	
-	if ([self.delegate respondsToSelector:@selector(downloadDone:)]) {
+	if (![self isCancelled] && [self.delegate respondsToSelector:@selector(downloadDone:)]) {
 		[self.delegate downloadDone:self];
 	} 
 }
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
     [super connection:connection didFailWithError:error];
-    if ([self.delegate respondsToSelector:@selector(downloadDone:)]) {
+    if (![self isCancelled] && [self.delegate respondsToSelector:@selector(downloadDone:)]) {
 		[self.delegate downloadDone:self];
     }
 }

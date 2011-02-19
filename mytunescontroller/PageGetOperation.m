@@ -22,17 +22,17 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    [super connectionDidFinishLoading:connection];
-
-   if ([self.delegate respondsToSelector:@selector(pageGetDone:)]) {
+	[super connectionDidFinishLoading:connection];
+	// if is not cancelled perform delegate
+	if (![self isCancelled] && [self.delegate respondsToSelector:@selector(pageGetDone:)]) {
 	   [self.delegate pageGetDone:self];
-   } 
+	} 
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
     [super connection:connection didFailWithError:error];
-    if ([self.delegate respondsToSelector:@selector(pageGetDone:)]) {
+    if (![self isCancelled] && [self.delegate respondsToSelector:@selector(pageGetDone:)]) {
 		[self.delegate pageGetDone:self];
     }
 }
