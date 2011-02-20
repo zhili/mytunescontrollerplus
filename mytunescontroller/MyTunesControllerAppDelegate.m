@@ -161,7 +161,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	if ([title isEqualToString:[track name]] && [artist isEqualToString:[track artist]]) {
 		// compose the lrc file key.
 		NSString *lrcFileName = [NSString stringWithFormat:@"%@-%@", artist, title];
-
+		[self stopLRCTimer];
 		[self resetLRCPoll:[store getLocalLRCFile:lrcFileName]];
 		[self startLRCTimer];
 		DeLog(@"Starting lyrics:..");
@@ -230,11 +230,9 @@ const NSTimeInterval kRefetchInterval = 0.5;
 	NSWindow *w = [notification object];
 	
 	if ([w isEqualTo:lyricsController.window]) {
-		if (lrcTimer) {
-			[lrcTimer invalidate];
-			[lrcTimer release];
-			lrcTimer = nil;
-		}
+		
+		[self stopLRCTimer];
+		
 		if (fetcher != nil) {
 			[fetcher stop];
 			[fetcher release]; 
@@ -309,10 +307,8 @@ const NSTimeInterval kRefetchInterval = 0.5;
 
 - (void)setLyricsForTrack:(iTunesTrack *)track
 {
-	if (lrcTimer) {
-		[self stopLRCTimer];
+	[self stopLRCTimer];
 		//[self cancelLoad];
-	}
 	if (track == nil) {
 		return;
 	}
@@ -368,7 +364,7 @@ const NSTimeInterval kRefetchInterval = 0.5;
 // Create and start the timer that triggers a refetch every few seconds
 - (void)startLRCTimer {
 	lyricsController.statusText = @"";
-	[self stopLRCTimer];
+	//[self stopLRCTimer];
 	lrcTimer = [NSTimer scheduledTimerWithTimeInterval:kRefetchInterval target:self selector:@selector(lrcRoller:) userInfo:nil repeats:YES];
 	//[lrcTimer retain];
 }

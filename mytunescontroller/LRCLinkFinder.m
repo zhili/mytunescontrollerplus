@@ -3,13 +3,12 @@
 #import "basictypes.h"
 #include <libxml/HTMLparser.h>
 #import "NSString+URLArguments.h"
-#import "chardetect.h"
-#define SOGOU_LRC_FOOTPRINT "downlrc.jsp"
-#define BAIDU_LRC_FOOTPRINT ".lrc"
-#define LRC123_LRC_FOOTPRINT "/download/lrc"
-#define LRC123_BASEURL @"http://www.lrc123.com"
-#define SOGOU_BASEURL @"http://mp3.sogou.com/"
-#define SOSO_URL_TEMPLATE @"http://cgi.music.soso.com/fcgi-bin/fcg_download_lrc.q?song=%@&singer=%@&down=1"
+//#define SOGOU_LRC_FOOTPRINT "downlrc.jsp"
+//#define BAIDU_LRC_FOOTPRINT ".lrc"
+//#define LRC123_LRC_FOOTPRINT "/download/lrc"
+//#define LRC123_BASEURL @"http://www.lrc123.com"
+//#define SOGOU_BASEURL @"http://mp3.sogou.com/"
+//#define SOSO_URL_TEMPLATE @"http://cgi.music.soso.com/fcgi-bin/fcg_download_lrc.q?song=%@&singer=%@&down=1"
 #define BUFSIZE	4096
 
 

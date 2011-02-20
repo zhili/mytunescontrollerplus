@@ -8,15 +8,31 @@
 
 #import <Cocoa/Cocoa.h>
 #import "LrcStorage.h"
+#import "NSTableView+deleteRow.h"
+
+enum queryFormIndices {
+    QFIArtist=0,
+    QFITitle,
+};
+
+@class LrcSearch;
 
 @interface LRCManagerController : NSWindowController {
-	IBOutlet NSTableView *tableView;
+	IBOutlet NSTableView_deleteRow *_tableView;
 	NSMutableArray *keyList;
-	IBOutlet NSButton *deleteButton;
+	IBOutlet NSForm *queryForm;
+	IBOutlet NSWindow *resultSheet;
 	LrcStorage *store;
+	NSMutableArray *lrcOfSongs;
+	LrcSearch *search;
+	IBOutlet NSProgressIndicator *searchProgressIndicator;
 }
 
+@property (nonatomic, readwrite, copy) NSMutableArray *lrcOfSongs;
+
 - (id)initWithStorage:(LrcStorage*)lrcstore;
-- (IBAction)deleteIt:(id)sender;
+- (IBAction)SearchIt:(id)sender;
+- (IBAction)closeResultSheet:(id)sender;
+
 
 @end

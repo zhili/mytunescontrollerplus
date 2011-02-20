@@ -52,6 +52,10 @@
 		D751530813029E8D0027EB96 /* LRCManagerController.m in Sources */ = {isa = PBXBuildFile; fileRef = D751530713029E8D0027EB96 /* LRCManagerController.m */; };
 		D751530A13029F7D0027EB96 /* LRCManagerWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = D751530913029F7D0027EB96 /* LRCManagerWindow.xib */; };
 		D76D451912EAD0CD007C733D /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D76D451812EAD0CD007C733D /* Sparkle.framework */; };
+		D78989561310FD2800535545 /* NSTableView+deleteRow.m in Sources */ = {isa = PBXBuildFile; fileRef = D78989551310FD2800535545 /* NSTableView+deleteRow.m */; };
+		D7898BB71311617000535545 /* LrcSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = D7898BB61311617000535545 /* LrcSearch.m */; };
+		D7898BFA1311675300535545 /* SosoLrcInfoParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D7898BF91311675300535545 /* SosoLrcInfoParser.m */; };
+		D7898C1713116A1500535545 /* LrcOfSong.m in Sources */ = {isa = PBXBuildFile; fileRef = D7898C1613116A1500535545 /* LrcOfSong.m */; };
 		D7A30BC912FEF7BB0032F578 /* status_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = D7A30BC812FEF7BB0032F578 /* status_icon.png */; };
 		D7A30BE812FEF8350032F578 /* app_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = D7A30BE712FEF8350032F578 /* app_icon.icns */; };
 		D7B503BE12F84C0A003112CD /* LrcToken.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B412F84C0A003112CD /* LrcToken.m */; };
@@ -147,6 +151,14 @@
 		D751530713029E8D0027EB96 /* LRCManagerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LRCManagerController.m; sourceTree = "<group>"; };
 		D751530913029F7D0027EB96 /* LRCManagerWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LRCManagerWindow.xib; sourceTree = "<group>"; };
 		D76D451812EAD0CD007C733D /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
+		D78989541310FD2800535545 /* NSTableView+deleteRow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTableView+deleteRow.h"; sourceTree = "<group>"; };
+		D78989551310FD2800535545 /* NSTableView+deleteRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTableView+deleteRow.m"; sourceTree = "<group>"; };
+		D7898BB51311617000535545 /* LrcSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcSearch.h; sourceTree = "<group>"; };
+		D7898BB61311617000535545 /* LrcSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcSearch.m; sourceTree = "<group>"; };
+		D7898BF81311675300535545 /* SosoLrcInfoParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SosoLrcInfoParser.h; sourceTree = "<group>"; };
+		D7898BF91311675300535545 /* SosoLrcInfoParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SosoLrcInfoParser.m; sourceTree = "<group>"; };
+		D7898C1513116A1500535545 /* LrcOfSong.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcOfSong.h; sourceTree = "<group>"; };
+		D7898C1613116A1500535545 /* LrcOfSong.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcOfSong.m; sourceTree = "<group>"; };
 		D7A30BC812FEF7BB0032F578 /* status_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = status_icon.png; sourceTree = "<group>"; };
 		D7A30BE712FEF8350032F578 /* app_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = app_icon.icns; sourceTree = "<group>"; };
 		D7B503B312F84C0A003112CD /* LrcToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcToken.h; sourceTree = "<group>"; };
@@ -340,6 +352,14 @@
 				D751530613029E8D0027EB96 /* LRCManagerController.h */,
 				D751530713029E8D0027EB96 /* LRCManagerController.m */,
 				D751530913029F7D0027EB96 /* LRCManagerWindow.xib */,
+				D78989541310FD2800535545 /* NSTableView+deleteRow.h */,
+				D78989551310FD2800535545 /* NSTableView+deleteRow.m */,
+				D7898BB51311617000535545 /* LrcSearch.h */,
+				D7898BB61311617000535545 /* LrcSearch.m */,
+				D7898BF81311675300535545 /* SosoLrcInfoParser.h */,
+				D7898BF91311675300535545 /* SosoLrcInfoParser.m */,
+				D7898C1513116A1500535545 /* LrcOfSong.h */,
+				D7898C1613116A1500535545 /* LrcOfSong.m */,
 			);
 			name = Lyrics;
 			sourceTree = "<group>";
@@ -460,6 +480,10 @@
 				D744A25312FC28A90056608A /* PageGetOperation.m in Sources */,
 				D744A25412FC28A90056608A /* HttpOperation.m in Sources */,
 				D751530813029E8D0027EB96 /* LRCManagerController.m in Sources */,
+				D78989561310FD2800535545 /* NSTableView+deleteRow.m in Sources */,
+				D7898BB71311617000535545 /* LrcSearch.m in Sources */,
+				D7898BFA1311675300535545 /* SosoLrcInfoParser.m in Sources */,
+				D7898C1713116A1500535545 /* LrcOfSong.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
