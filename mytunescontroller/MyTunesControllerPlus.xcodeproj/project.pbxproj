@@ -58,6 +58,7 @@
 		D7898C1713116A1500535545 /* LrcOfSong.m in Sources */ = {isa = PBXBuildFile; fileRef = D7898C1613116A1500535545 /* LrcOfSong.m */; };
 		D7A30BC912FEF7BB0032F578 /* status_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = D7A30BC812FEF7BB0032F578 /* status_icon.png */; };
 		D7A30BE812FEF8350032F578 /* app_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = D7A30BE712FEF8350032F578 /* app_icon.icns */; };
+		D7AE371B1312B570007F0F3A /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D76D451812EAD0CD007C733D /* Sparkle.framework */; };
 		D7B503BE12F84C0A003112CD /* LrcToken.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B412F84C0A003112CD /* LrcToken.m */; };
 		D7B503BF12F84C0A003112CD /* LrcTokensPool.mm in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B612F84C0A003112CD /* LrcTokensPool.mm */; };
 		D7B503C012F84C0A003112CD /* NSScanner+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B812F84C0A003112CD /* NSScanner+JSON.m */; };
@@ -71,6 +72,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				D7AE371B1312B570007F0F3A /* Sparkle.framework in CopyFiles */,
 				D748B8FF130FB55F008E3DB7 /* UniversalDetector.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

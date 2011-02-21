@@ -17,8 +17,8 @@
 @synthesize downloadURL = _downloadURL;
 
 - (id)initWithArtist:(NSString *)artist 
-			   Title:(NSString *)title
-		 DownloadURL:(NSURL*)dlURL;
+			   title:(NSString *)title
+		 downloadURL:(NSURL*)dlURL;
 {
 	if (self = [super init]) {
 		_artist = [artist copy];
@@ -26,6 +26,11 @@
 		_downloadURL = [dlURL retain];
 	}
 	return self;
+}
+
+- (id)initWithArtist:(NSString *)artist title:(NSString *)title
+{
+	return [self initWithArtist:artist title:title downloadURL:nil];
 }
 
 - (void)dealloc

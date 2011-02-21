@@ -85,7 +85,7 @@ enum {
 - (void)addURLForCString//:(const char *)cStr toArray:(NSMutableArray *)array
 // Adds a URL to the specified array, handling lots of wacky edge cases.
 {
-    NSURL *url;
+
     
     // cStr should be ASCII but, just to be permissive, we'll accept UTF-8. 
     // Handle the case where cStr is not valid UTF-8.
@@ -103,6 +103,7 @@ enum {
         // Construct a relativel URL based on our base URL and the string. 
         // This can and does fail on real world systems (curse those users 
         // and their bogus HTML!).
+		NSURL *url = nil;
 		NSURL *baseLrcURL;
 		NSArray *sosoTokens;
 		switch (self.lrcEngine) {
@@ -126,22 +127,18 @@ enum {
 													[singer stringByEscapingForURLArgumentUsingEncodingGBk]];
 					url = [NSURL URLWithString:sosoDownloadURLStr];
 					DeLog(@"%@", sosoDownloadURLStr);
-				} else {
-					url = nil;
-				}
-
-
+				} 
 				break;
 
 			default:
 				DeLog(@"never goes here");
 				break;
 		}
-        if (url == nil) {
-            DeLog(@"Could not construct URL from '%@' relative to '%@'.", str, self.URL);
-        } else {
-            [_mutableLrcURLs addObject:url];
+        if (url) {
+			[_mutableLrcURLs addObject:url];
 			DeLog(@"new lrc download url: %@", url);
+        } else {
+			DeLog(@"Could not construct URL from '%@' relative to '%@'.", str, self.URL);
 		}
     }
 	[str release];

@@ -104,8 +104,8 @@ enum {
 			url = [NSURL URLWithString:sosoDownloadURLStr];
 			
 			LrcOfSong *aLrc = [[LrcOfSong alloc] initWithArtist:singer
-														 Title:song
-												   DownloadURL:(NSURL*)url];
+														 title:song
+												   downloadURL:url];
 			DeLog(@"%@", sosoDownloadURLStr);
 			[_mutableLrcURLs addObject:aLrc];
 			[aLrc release];

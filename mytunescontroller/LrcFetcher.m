@@ -255,7 +255,7 @@ static const NSTimeInterval kGiveUpInterval = 30.0;
     } else {
 		[self.foundLrcURLToPathMap setObject:op.lrcFilePath forKey:op.URL];
 		[_lrcStorage addLRCFile:[NSString stringWithFormat:@"%@-%@", _artist, _title]];
-		NSLog(@"download file: %@ ok", op.lrcFilePath);
+		DeLog(@"download file: %@ ok", op.lrcFilePath);
 		if ([self.delegate respondsToSelector:@selector(lrcDownloadDidFinishWithArtist:Title:)]) {
 			[self.delegate lrcDownloadDidFinishWithArtist:_artist Title:_title];
 		} 

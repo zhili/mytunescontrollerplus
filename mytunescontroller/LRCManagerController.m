@@ -8,11 +8,16 @@
 
 #import "LRCManagerController.h"
 #import "LrcSearch.h"
+#import "LrcOfSong.h"
 
 @interface LRCManagerController () <LrcSearchDelegate>
+
+- (LrcOfSong *)songFromString:(NSString*)songString;
+
 @end
 
 @implementation LRCManagerController
+
 
 
 - (NSMutableArray *)lrcOfSongs
@@ -29,12 +34,40 @@
     }
 }
 
+- (LrcOfSong *)songFromString:(NSString*)songString
+{
+	NSScanner *scanner = [NSScanner scannerWithString:songString];
+	NSString *at;
+	NSString *ti;
+	LrcOfSong *asong;
+	
+	if ([scanner scanUpToString:@"-" intoString:&at]) {
+		ti = [songString substringFromIndex:[scanner scanLocation]+1];
+		asong = [[LrcOfSong alloc] initWithArtist:at title:ti];
+	} else {
+		asong = [[LrcOfSong alloc] initWithArtist:songString title:@""];
+	}
+	return [asong autorelease];
+}
+
 - (id)initWithStorage:(LrcStorage*)lrcstore
 {
 	if (self = [super initWithWindowNibName:@"LRCManagerWindow" owner:self]) {
 		lrcOfSongs = [NSMutableArray array];
+
 		store = [lrcstore retain];
-		keyList = [[[store allItemKey] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)] mutableCopy];
+
+		NSArray *lrcFiles = [[store allItemKey] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+		keyList = [[NSMutableArray alloc] initWithCapacity:[lrcFiles count]];
+		NSEnumerator *etor = [lrcFiles objectEnumerator];
+		id anObject;
+		while (anObject = [etor nextObject]) {
+			
+			[keyList addObject:[self songFromString:anObject]];
+
+		}
+		
+		_search = [[LrcSearch alloc] initWithDelegate:self];
 	}
     return self;
 }
@@ -48,29 +81,32 @@
 
 - (int)numberOfRowsInTableView:(NSTableView_deleteRow *)tv
 {
-	NSLog(@"in row number");
 	return [keyList count];
 }
 
 - (id)tableView:(NSTableView_deleteRow *)tv objectValueForTableColumn:(NSTableColumn *)tc row:(int)row
 {
-
-	if (keyList != nil) {
-		return [keyList objectAtIndex:row];
+	if (row != -1) {
+		LrcOfSong *asong = [keyList objectAtIndex:row];
+		return [asong valueForKey:[tc identifier]];
 	}
     return nil;
 }
 
+
 - (void)tableView:(NSTableView_deleteRow *)tv deleteRows:(NSIndexSet *)selectedRowIndexes
 {
-	NSLog(@"deleting");
 	
 	NSUInteger index = [selectedRowIndexes firstIndex];
 	
 	while(index != NSNotFound) {
-		NSString *thisKey = [keyList objectAtIndex:index];
-		[store deleteLRCFile:thisKey];
-		//[keyList removeObjectAtIndex:index];
+		LrcOfSong *asong = [keyList objectAtIndex:index];
+		if ([asong.title length] != 0) {
+			[store deleteLRCFile:[NSString stringWithFormat:@"%@-%@", asong.artist, asong.title]];
+		} else {
+			[store deleteLRCFile:asong.artist];
+		}
+
 		index=[selectedRowIndexes indexGreaterThanIndex:index];
 	}
 	[keyList removeObjectsAtIndexes:selectedRowIndexes];
@@ -79,32 +115,30 @@
 
 - (IBAction)SearchIt:(id)sender
 {
-//	[self willChangeValueForKey:@"lrcOfSongs"];
-// 
-//	LrcOfSong *asong = [[LrcOfSong alloc] initWithArtist:@"abc" Title:@"adv" DownloadURL:[NSURL URLWithString:@"http://abc.com"]];
-//	[lrcOfSongs addObject:asong];
-//	[self didChangeValueForKey:@"lrcOfSongs"];
+
 	NSString *ar = [[queryForm cellAtIndex:QFIArtist] stringValue];
 	NSString *ti = [[queryForm cellAtIndex:QFITitle] stringValue];
-	
-	search = [[LrcSearch alloc] initWithArtist:ar Title:ti];
-	search.delegate = self;
-	[search start];
+	_search.title = ti;
+	_search.artist = ar;
+
+	[_search startSearch];
 	[searchProgressIndicator startAnimation:sender];
 	[NSApp beginSheet:resultSheet
        modalForWindow:self.window
         modalDelegate:nil
        didEndSelector:NULL
           contextInfo:NULL];
-//    [queryForm cellAtIndex:QFITitle];
 }
 
 -(void)searchDone:(NSArray *)lrcList
 {
-	[self willChangeValueForKey:@"lrcOfSongs"];
- 
-	[lrcOfSongs addObjectsFromArray:lrcList];
-	[self didChangeValueForKey:@"lrcOfSongs"];
+	if (lrcList != nil) {
+		[self willChangeValueForKey:@"lrcOfSongs"];
+		
+		[lrcOfSongs addObjectsFromArray:lrcList];
+		[self didChangeValueForKey:@"lrcOfSongs"];
+	}
+
 	[searchProgressIndicator stopAnimation:nil];
 }
 
@@ -115,9 +149,33 @@
 	
 	// Hide the sheet
 	[resultSheet orderOut:sender];
+	[_tableView reloadData];
 }
+
+- (IBAction)DownloadSelected:(id)sender
+{
+	NSArray *selectedObjects = [arrayController selectedObjects];
+	
+	
+	for (LrcOfSong *lrcSong in selectedObjects) {
+		[_search startDownloadLrc:lrcSong];
+	}
+	[searchProgressIndicator startAnimation:sender];
+}
+
+-(void)downloadDone:(NSString *)lrcName
+{
+	if (lrcName != nil) {
+		[store addLRCFile:lrcName];
+		[keyList addObject:[self songFromString:lrcName]];
+	}
+	[searchProgressIndicator stopAnimation:nil];
+}
+
 - (void)dealloc
 {
+	[_search stopAll];
+	[_search release];
 	[store release];
 	store = nil;
 	[keyList release];

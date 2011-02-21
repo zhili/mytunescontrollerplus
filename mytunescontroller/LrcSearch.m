@@ -11,8 +11,10 @@
 #import "NSString+URLArguments.h"
 #import "PageGetOperation.h"
 #import "SosoLrcInfoParser.h"
+#import "LrcDownloadOperation.h"
+#import "LrcOfSong.h"
 
-@interface LrcSearch () <PageGetOperationDelegate, SosoLrcInfoParserDelegate>
+@interface LrcSearch () <PageGetOperationDelegate, SosoLrcInfoParserDelegate, LrcDownloadOperationDelegate>
 
 @property (nonatomic, retain, readonly) NSOperationQueue *queue;
 @property (nonatomic, copy, readwrite) NSError *error;
@@ -28,10 +30,11 @@
 @synthesize title = _title;
 @synthesize error = _error;
 @synthesize done;
-@synthesize delegate;
+@synthesize delegate = _delegate;
 
 - (id)initWithArtist:(NSString*)artist
-			   Title:(NSString*)title
+			   title:(NSString*)title
+			delegate:(id)delegate
 {
 	assert(title != nil || artist != nil);
 	
@@ -39,9 +42,18 @@
 	if (self != nil) {
 		_title = [title copy];
 		_artist = [artist copy];
+		_delegate = delegate;
 	}
 	return self;
 	
+}
+
+- (id)initWithDelegate:(id)delegate
+{
+	if (self = [super init]) {
+		_delegate = delegate;
+	}
+	return self;
 }
 
 - (void)dealloc
@@ -63,7 +75,7 @@
 	return _queue;
 }
 
-- (BOOL)start
+- (BOOL)startSearch
 {
 
 	NSURL *url;
@@ -88,6 +100,9 @@
     assert([op isKindOfClass:[PageGetOperation class]]);
     if (op.error != nil) {
         [self stopWithError:op.error];
+		if ([self.delegate respondsToSelector:@selector(searchDone:)]) {
+			[self.delegate searchDone:nil];
+		} 
         DeLog(@"Empty Page.");
     } else {
         DeLog(@"open page successfully");
@@ -106,38 +121,11 @@
 - (void)parseDone:(SosoLrcInfoParser *)op
 {
     assert([op isKindOfClass:[SosoLrcInfoParser class]]);
-	
-//    if (op.error != nil) {
-//		DeLog(@"parse error.%@", op.error);
-//		[self stopWithError:op.error];
-//	} else {
-//		 
-//		 NSURL *thisURL;
-//		 NSURL *thisURLAbsolute;
-//		 NSError *noLRCLinkError = nil;
-		 
-		 DeLog(@"parsed links.");
-		if ([self.delegate respondsToSelector:@selector(searchDone:)]) {
-			[self.delegate searchDone:op.lrcURLs];
-		} 
+	DeLog(@"parsed links.");
+	if ([self.delegate respondsToSelector:@selector(searchDone:)]) {
+		[self.delegate searchDone:op.lrcURLs];
+	} 
 		
-//		 for (thisURL in op.lrcURLs) {
-//			 if ([op.lrcURLs count] > 0) {
-//				 thisURL = [op.lrcURLs objectAtIndex:0];
-//				 thisURLAbsolute = [thisURL absoluteURL];
-//				 assert(thisURLAbsolute != nil);
-//				 DeLog(@"%@", thisURL);
-//			 } else {
-//				 
-//				 NSDictionary *userInfo = [NSDictionary dictionaryWithObject:@"No LRC Link is Founded Error"
-//																	  forKey:NSLocalizedDescriptionKey];
-//				 noLRCLinkError = [NSError errorWithDomain:NSCocoaErrorDomain
-//													  code:-50
-//												  userInfo:userInfo];
-//				 [self stopWithError:noLRCLinkError];
-//			 }
-//		 }
-//	 }
 }
 
 - (void)stopWithError:(NSError *)error
@@ -148,9 +136,42 @@
     self.done = YES;
 }
 
-- (void)stop
+- (void)stopAll
 {
 	[self stopWithError:[NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil]];
+}
+
+- (BOOL)startDownloadLrc:(LrcOfSong *)lrcOfTheSong
+{
+	LrcDownloadOperation *downloadOperation;
+	downloadOperation = [[[LrcDownloadOperation alloc] initWithURL:lrcOfTheSong.downloadURL
+														lrcDirPath:[@"~/Library/Application Support/MyTunesControllerPlus/" stringByExpandingTildeInPath] 
+													   lrcFileName:[NSString stringWithFormat:@"%@-%@", lrcOfTheSong.artist, lrcOfTheSong.title]] autorelease];
+	assert(downloadOperation != nil);
+	downloadOperation.delegate = self;
+	[self.queue addOperation:downloadOperation];
+	return YES;
+}
+
+- (void)downloadDone:(LrcDownloadOperation *)op
+{
+	
+    assert([op isKindOfClass:[LrcDownloadOperation class]]);
+    assert([NSThread isMainThread]);
+	
+    if (op.error != nil) {
+		[self stopWithError:op.error];
+		if ([self.delegate respondsToSelector:@selector(downloadDone:)]) {
+			[self.delegate downloadDone:nil];
+		} 
+    } else {
+		//NSLog(@"download file: %@ ok", op.lrcFilePath);
+
+		if ([self.delegate respondsToSelector:@selector(downloadDone:)]) {
+			[self.delegate downloadDone:op.lrcName];
+		} 
+    }
+	
 }
 
 

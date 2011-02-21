@@ -17,12 +17,14 @@
 }
 
 - (id)initWithArtist:(NSString *)artist 
-			   Title:(NSString *)title
-		 DownloadURL:(NSURL*)dlURL;
+			   title:(NSString *)title
+		 downloadURL:(NSURL *)dlURL;
 
+- (id)initWithArtist:(NSString *)artist title:(NSString *)title;
+
+@property (nonatomic, readwrite, retain) NSURL *downloadURL;
 @property (nonatomic, readwrite, copy) NSString *title;
 @property (nonatomic, readwrite, copy) NSString *artist;
-@property (nonatomic, readwrite, retain) NSURL *downloadURL;
 
 @end
 

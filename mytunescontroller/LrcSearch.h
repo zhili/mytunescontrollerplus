@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class LrcOfSong;
 @protocol LrcSearchDelegate;
 
 @interface LrcSearch : NSObject {
@@ -16,7 +17,7 @@
 	NSString *_title;
 	NSError *_error;
 	BOOL done;
-	id<LrcSearchDelegate> delegate;
+	id<LrcSearchDelegate> _delegate;
 }
 
 @property (nonatomic, copy) NSString *artist;
@@ -26,14 +27,22 @@
 @property (readwrite, assign) id<LrcSearchDelegate> delegate;
 
 - (id)initWithArtist:(NSString*)artist
-			   Title:(NSString*)title;
-- (BOOL)start;
-- (void)stop;
+			   title:(NSString*)title
+			delegate:(id)delegate;
+
+- (id)initWithDelegate:(id)delegate;
+- (BOOL)startSearch;
+- (void)stopAll;
+
+- (BOOL)startDownloadLrc:(LrcOfSong *)lrcOfTheSong;
 
 @end
 
 
 @protocol LrcSearchDelegate <NSObject>
+
 -(void)searchDone:(NSArray *)lrcList;
+-(void)downloadDone:(NSString *)lrcName;
+
 @end
 

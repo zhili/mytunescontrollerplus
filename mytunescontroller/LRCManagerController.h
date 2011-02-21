@@ -24,8 +24,9 @@ enum queryFormIndices {
 	IBOutlet NSWindow *resultSheet;
 	LrcStorage *store;
 	NSMutableArray *lrcOfSongs;
-	LrcSearch *search;
+	LrcSearch *_search;
 	IBOutlet NSProgressIndicator *searchProgressIndicator;
+	IBOutlet NSArrayController *arrayController;
 }
 
 @property (nonatomic, readwrite, copy) NSMutableArray *lrcOfSongs;
@@ -33,6 +34,6 @@ enum queryFormIndices {
 - (id)initWithStorage:(LrcStorage*)lrcstore;
 - (IBAction)SearchIt:(id)sender;
 - (IBAction)closeResultSheet:(id)sender;
-
+- (IBAction)DownloadSelected:(id)sender;
 
 @end
