@@ -3,7 +3,7 @@
 //  MyTunesControllerPlus
 //
 //  Created by zhili hu on 2/20/11.
-//  Copyright 2011 scut. All rights reserved.
+//  Copyright 2011 zhili hu. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

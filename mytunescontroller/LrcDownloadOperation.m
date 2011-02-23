@@ -3,7 +3,7 @@
 //  lrcDownloader
 //
 //  Created by zhili hu on 2/4/11.
-//  Copyright 2011 scut. All rights reserved.
+//  Copyright 2011 zhili hu. All rights reserved.
 //
 
 #import "LrcDownloadOperation.h"
