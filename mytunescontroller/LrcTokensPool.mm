@@ -97,9 +97,13 @@
 
 - (void)parseLyrics:(NSString *)lyricsString withTimeArray:(NSSet *)timeArray
 {
+	NSMutableString *m_lrc = [NSMutableString stringWithString:lyricsString];
+	if ([m_lrc characterAtIndex:[m_lrc length] - 1] != '\n') {
+		 [m_lrc appendFormat:@"%c",'\n'];
+	}
 
     for (NSNumber *num in timeArray) {
-        LyricItem *lyric = [[LyricItem alloc] initWithLyricsId:0 timeStamp:[num intValue] lyrics:lyricsString];
+        LyricItem *lyric = [[LyricItem alloc] initWithLyricsId:0 timeStamp:[num intValue] lyrics:m_lrc];
         [lyricPool_ addObject:lyric];
         [lyric release];
     }
