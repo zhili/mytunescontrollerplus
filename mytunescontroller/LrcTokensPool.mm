@@ -127,6 +127,7 @@
 									 encoding: enc];
 	
 	NSString *lrcString =[self stantardalizeNewLine:contents];
+	[contents release];
 	NSScanner *lrcScanner = [NSScanner scannerWithString:lrcString];
 	
     [lrcScanner setCharactersToBeSkipped:nil];
@@ -159,7 +160,7 @@
 				if ([lrcScanner scanInt:NULL]) {
 					// time attribute.
 					[lrcScanner setScanLocation:backwordLocation];
-					NSLog(@"at time");
+					//NSLog(@"at time");
 					[lrcScanner scanUpToString:@"]" intoString:&res];
 					[timeArray addObject:[self parseTimeStamp:res]];
 
@@ -207,7 +208,7 @@
 //		NSLog(@"Enumerating Key %@ and Value %@", key, obj);
 //	}];
 	// sort by timestamp.
-	[contents release];
+
 	NSSortDescriptor *sortDescriptor;
 	sortDescriptor = [[[NSSortDescriptor alloc] initWithKey:@"timeStamp"
 												  ascending:YES] autorelease];
