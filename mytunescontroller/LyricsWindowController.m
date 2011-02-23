@@ -118,7 +118,7 @@
 		// styles for lyrics before current playing.
 		while (i < lyid) {
 			// we added a new line symbol, so length become larger.
-			area.length += [[lyricsPool objectAtIndex:i] length] + 1; 
+			area.length += [[lyricsPool objectAtIndex:i] length]; //+ 1; 
 			i += 1;
 		}
 
@@ -188,7 +188,7 @@
 		//NSMutableString* theString = [NSMutableString string];
 		for (NSString *str in lyricsPool) {
 			//[theString appendString:[NSString stringWithFormat:@"%@\n",str]];
-			NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n",str] attributes:attributes];
+			NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:str attributes:attributes];
 			[textStorage appendAttributedString:attributedString];
 			[attributedString release];
 		}
