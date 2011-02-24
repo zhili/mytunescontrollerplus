@@ -61,7 +61,6 @@
 		D7AE371B1312B570007F0F3A /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D76D451812EAD0CD007C733D /* Sparkle.framework */; };
 		D7B503BE12F84C0A003112CD /* LrcToken.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B412F84C0A003112CD /* LrcToken.m */; };
 		D7B503BF12F84C0A003112CD /* LrcTokensPool.mm in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B612F84C0A003112CD /* LrcTokensPool.mm */; };
-		D7B503C012F84C0A003112CD /* NSScanner+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503B812F84C0A003112CD /* NSScanner+JSON.m */; };
 		D7B503C112F84C0A003112CD /* NSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = D7B503BA12F84C0A003112CD /* NSString+URLArguments.m */; };
 /* End PBXBuildFile section */
 
@@ -167,8 +166,6 @@
 		D7B503B412F84C0A003112CD /* LrcToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LrcToken.m; sourceTree = "<group>"; };
 		D7B503B512F84C0A003112CD /* LrcTokensPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LrcTokensPool.h; sourceTree = "<group>"; };
 		D7B503B612F84C0A003112CD /* LrcTokensPool.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LrcTokensPool.mm; sourceTree = "<group>"; };
-		D7B503B712F84C0A003112CD /* NSScanner+JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScanner+JSON.h"; sourceTree = "<group>"; };
-		D7B503B812F84C0A003112CD /* NSScanner+JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScanner+JSON.m"; sourceTree = "<group>"; };
 		D7B503B912F84C0A003112CD /* NSString+URLArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+URLArguments.h"; sourceTree = "<group>"; };
 		D7B503BA12F84C0A003112CD /* NSString+URLArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+URLArguments.m"; sourceTree = "<group>"; };
 		D7B53FD712FE8F25009C311B /* basictypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basictypes.h; sourceTree = "<group>"; };
@@ -341,8 +338,6 @@
 				D7B503B412F84C0A003112CD /* LrcToken.m */,
 				D7B503B512F84C0A003112CD /* LrcTokensPool.h */,
 				D7B503B612F84C0A003112CD /* LrcTokensPool.mm */,
-				D7B503B712F84C0A003112CD /* NSScanner+JSON.h */,
-				D7B503B812F84C0A003112CD /* NSScanner+JSON.m */,
 				D7B503B912F84C0A003112CD /* NSString+URLArguments.h */,
 				D7B503BA12F84C0A003112CD /* NSString+URLArguments.m */,
 				C87406471244D7D0008F0DD4 /* LyricsWindow.xib */,
@@ -473,7 +468,6 @@
 				C8BF8F7D1284B9AD00BB5CAC /* RecessedScroller.m in Sources */,
 				D7B503BE12F84C0A003112CD /* LrcToken.m in Sources */,
 				D7B503BF12F84C0A003112CD /* LrcTokensPool.mm in Sources */,
-				D7B503C012F84C0A003112CD /* NSScanner+JSON.m in Sources */,
 				D7B503C112F84C0A003112CD /* NSString+URLArguments.m in Sources */,
 				D744A24F12FC28A90056608A /* LrcDownloadOperation.m in Sources */,
 				D744A25012FC28A90056608A /* LRCFetcher.m in Sources */,

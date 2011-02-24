@@ -8,7 +8,7 @@
 
 #import "LrcTokensPool.h"
 #import "LrcToken.h"
-#import "NSScanner+JSON.h"
+//#import "NSScanner+JSON.h"
 #import <UniversalDetector/UniversalDetector.h>
 
 
